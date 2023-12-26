@@ -20,6 +20,7 @@ exports.validateStudyRequest = (_reqBody) => {
             min: Joi.number().required().min(5),
             max: Joi.number().required().min(Joi.ref('min')),
         }).required(),
+        state: Joi.string().valid('open', 'close', 'available').required(),
     }).custom((value, helpers) => {
         // Calculate the duration in hours
         const from = new Date(value.preferredHours.from);
@@ -32,5 +33,6 @@ exports.validateStudyRequest = (_reqBody) => {
 
         return value;
     });
+
     return schemaJoi.validate(_reqBody);
-}
+};
