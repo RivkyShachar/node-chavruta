@@ -5,7 +5,7 @@ const {userController} = require("../controllers/userController")
 const router = express.Router();
 
 // get current user details
-router.get("/myInfo", auth, userController.myInfo)
+// router.get("/myInfo", auth, userController.myInfo)
 
 // get all users details - only admin allow
 router.get("/usersList", authAdmin, userController.userList)
@@ -16,14 +16,14 @@ router.get("/searchName/:name", auth, userController.searchName)
 // get all users details - only admin allow
 router.get("/profileList", authAdmin, userController.profileList)
 
-router.get("/single/:idSingle1", userController.singleUser);
+// router.get("/single/:idSingle1", userController.singleUser);
 
-router.put("/:idEdit", auth, userController.editUser)
+// router.put("/:idEdit", auth, userController.editUser)
 
 // delete user accont - by user token
-router.delete("/deleteAccount", auth, userController.deleteAccount )
+// router.delete("/deleteAccount", auth, userController.deleteAccount )
 
 // delete spesific user by admin token
-router.delete("/:idDel", authAdmin, userController.deleteUser )
+// router.delete("/:idDel", authAdmin, userController.deleteUser )
 
 module.exports = router;

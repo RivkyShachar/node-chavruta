@@ -28,7 +28,7 @@ exports.userController = {
         .skip((page - 1) * perPage)
         .sort({ [sort]: reverse });
 
-      res.status(200).json(data);
+      res.status(200).json({data,msg:"ok"});
     } catch (err) {
       console.error(err);
       res.status(500).json({ msg: "Internal Server Error" });
@@ -58,7 +58,7 @@ exports.userController = {
         .skip((page - 1) * perPage)
         .sort({ [sort]: reverse });
 
-      res.status(200).json(data);
+      res.status(200).json({data, msg: "ok"});
     } catch (err) {
       console.error(err);
       res.status(500).json({ msg: "Internal Server Error" });
@@ -78,7 +78,7 @@ exports.userController = {
       // Filter out users with default profile pictures
       const profilesList = data.filter(profile_pic => !isDefaultImage(profile_pic));
 
-      res.status(200).json(profilesList);
+      res.status(200).json({data: profilesList, msg:"ok"});
     } catch (err) {
       console.error(err);
       res.status(500).json({ msg: "Internal Server Error" });
