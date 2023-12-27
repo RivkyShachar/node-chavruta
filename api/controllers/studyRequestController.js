@@ -1,23 +1,25 @@
+const {validateStudyRequest} = require("../validations/studyRequestValidation");
+const {StudyRequestModel} = require("../models/studyRequestModel")
 exports.studyRequestController = {
     requestsList: async (req, res) => {
-        let perPage = Math.min(req.query.perPage, 20) || 10;
-        let page = req.query.page || 1;
-        let sort = req.query.sort || "_id";
-        let reverse = req.query.reverse == "yes" ? -1 : 1;
-    
         try {
+            let perPage = Math.min(req.query.perPage, 20) || 10;
+            let page = req.query.page || 1;
+            let sort = req.query.sort || "_id";
+            let reverse = req.query.reverse == "yes" ? -1 : 1;
+
+            // Fetch study requests with pagination and sorting
             let data = await StudyRequestModel
                 .find({})
                 .limit(perPage)
                 .skip((page - 1) * perPage)
-                .sort({ [sort]: reverse })
-            res.status(201).json(data);
+                .sort({ [sort]: reverse });
+
+            res.status(200).json(data);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ msg: "Internal Server Error" });
         }
-        catch (err) {
-            console.log(err)
-            res.status(500).json({ msg: "err", err })
-        }
-    
     },
     myStudyRequests: async (req, res) => {
         let perPage = Math.min(req.query.perPage, 20) || 10;

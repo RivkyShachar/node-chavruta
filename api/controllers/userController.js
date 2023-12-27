@@ -1,6 +1,8 @@
 const { UserModel } = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const { validUser } = require("../validations/userValidation");
+const { isDefaultImage } = require("../helpers/userHelper")
+
 
 exports.userController = {
   myInfo: async (req, res) => {
@@ -14,12 +16,72 @@ exports.userController = {
   },
   userList: async (req, res) => {
     try {
-      let data = await UserModel.find({}, { password: 0 });
-      res.status(201).json(data)
+      let perPage = Math.min(req.query.perPage, 20) || 10;
+      let page = req.query.page || 1;
+      let sort = req.query.sort || "_id";
+      let reverse = req.query.reverse == "yes" ? -1 : 1;
+
+      // Fetch all users with all data
+      let data = await UserModel
+        .find({})
+        .limit(perPage)
+        .skip((page - 1) * perPage)
+        .sort({ [sort]: reverse });
+
+      res.status(200).json(data);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ msg: "Internal Server Error" });
     }
-    catch (err) {
-      console.log(err)
-      res.status(500).json({ msg: "err", err })
+  },
+  searchName: async (req, res) => {
+    try {
+      let perPage = Math.min(req.query.perPage, 20) || 10;
+      let page = req.query.page || 1;
+      let sort = req.query.sort || "_id";
+      let reverse = req.query.reverse == "yes" ? -1 : 1;
+
+      const searchQuery = req.params.name;
+
+      // Define a regular expression for the search query (case-insensitive)
+      const regex = new RegExp(searchQuery, "i");
+
+      // Fetch users based on the search query
+      let data = await UserModel
+        .find({
+          $or: [
+            { firstName: regex },
+            { lastName: regex },
+          ],
+        })
+        .limit(perPage)
+        .skip((page - 1) * perPage)
+        .sort({ [sort]: reverse });
+
+      res.status(200).json(data);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ msg: "Internal Server Error" });
+    }
+  },
+  profileList: async (req, res) => {
+    try {
+      let perPage = Math.min(req.query.perPage, 20) || 10;
+      let page = req.query.page || 1;
+
+      // Fetch distinct profile_pic values for all users excluding passwords
+      let data = await UserModel
+        .distinct("profile_pic", { profile_pic: { $exists: true, $ne: null } })
+        .limit(perPage)
+        .skip((page - 1) * perPage);
+
+      // Filter out users with default profile pictures
+      const profilesList = data.filter(profile_pic => !isDefaultImage(profile_pic));
+
+      res.status(200).json(profilesList);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ msg: "Internal Server Error" });
     }
   },
   singleUser: async (req, res) => {
