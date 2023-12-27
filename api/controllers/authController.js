@@ -19,6 +19,11 @@ exports.authController = {
 
             // Generate token for the registered user
             let token = createToken(user._id, user.role);
+            res.cookie("jwt", token, {
+                httpOnly: true,
+                secure: true,
+                maxAge: 1000 * 60 * 60*2,
+              });
 
             res.status(201).json({ msg: "User created successfully", user, token });
         } catch (err) {
@@ -54,7 +59,7 @@ exports.authController = {
             res.cookie("jwt", token, {
                 httpOnly: true,
                 secure: true,
-                maxAge: 1000 * 60 * 10,
+                maxAge: 1000 * 60 * 60*2,
               });
             res.status(200).json({ msg: "Login successful",token });
         } catch (err) {

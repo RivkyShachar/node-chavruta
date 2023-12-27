@@ -1,3 +1,6 @@
+const jwt = require("jsonwebtoken");
+const {config} = require("../config/secret")
+
 exports.authAdmin = (req,res,next) => {
   let token = req.header("x-api-key");
   if(!token){
@@ -5,6 +8,7 @@ exports.authAdmin = (req,res,next) => {
   }
   try{
     let decodeToken = jwt.verify(token,config.tokenSecret);
+
     // check if the role in the token is of an admin
     if(decodeToken.role != "admin"){
       return res.status(401).json({msg:"Admin token invalid or expired"})
