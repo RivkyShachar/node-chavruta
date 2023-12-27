@@ -7,21 +7,21 @@ const router = express.Router();
 router.get("/requestsList", authAdmin, studyRequestController.requestsList)
 
 // get all the requests that the user has posted - by token
-router.get("/myStudyRequests", auth, studyRequestController.myStudyRequests)
+// router.get("/myStudyRequests", auth, studyRequestController.myStudyRequests)
 
 //search by language and topic
-router.get("/search",studyRequestController.search );
+// router.get("/search",studyRequestController.search );
 
-router.get("/single/:idSingle1", auth, studyRequestController.singleRequest)
+// router.get("/single/:idSingle1", auth, studyRequestController.singleRequest)
 
-router.get("/duration", studyRequestController.duration )
+// router.get("/duration", studyRequestController.duration )
 
-router.get("/topic/:topName", studyRequestController.topic)
+// router.get("/topic/:topName", studyRequestController.topic)
 
 router.post("/", auth, studyRequestController.addRequest)
 
-router.put("/:editId", auth, studyRequestController.editRequest)
+// router.put("/:editId", auth, studyRequestController.editRequest)
 
-router.delete("/:delId", auth, studyRequestController.deleteRequest)
+// router.delete("/:delId", auth, studyRequestController.deleteRequest)
 
 module.exports = router;

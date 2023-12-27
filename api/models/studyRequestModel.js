@@ -23,7 +23,7 @@ const studyRequestSchema = new mongoose.Schema({
         enum: ['done', 'past', 'open', 'close'],
         default: 'open', // Set a default value if not provided
     },
-
+    user_id:Number,
 })
 
 exports.StudyRequestModel = mongoose.model("studyRequests", studyRequestSchema);

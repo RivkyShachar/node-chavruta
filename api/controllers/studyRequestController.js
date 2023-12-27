@@ -15,7 +15,7 @@ exports.studyRequestController = {
                 .skip((page - 1) * perPage)
                 .sort({ [sort]: reverse });
 
-            res.status(200).json(data);
+            res.status(200).json({data, msg: "ok"});
         } catch (err) {
             console.error(err);
             res.status(500).json({ msg: "Internal Server Error" });
@@ -144,24 +144,24 @@ exports.studyRequestController = {
       addRequest: async (req, res) => {
         let validBody = validateStudyRequest(req.body);
         if (validBody.error) {
-            return res.status(400).json(validBody.error.details);
+            return res.status(400).json({msg: `error from joi-${validBody.error.details}`});
         }
         try {
             let studyRequest = new StudyRequestModel(req.body);
             // add the user_id of the user that add the studyRequest
             studyRequest.user_id = req.tokenData._id;
             await studyRequest.save();
-            res.status(201).json(studyRequest);
+            res.status(201).json({data: studyRequest, msg: "Study request saved succesfully"});
         }
         catch (err) {
             console.log(err);
-            res.status(500).json({ msg: "err", err })
+            res.status(500).json({ msg: "Internal Server Error"  })
         }
     },
     editRequest: async (req, res) => {
         let validBody = validateStudyRequest(req.body);
         if (validBody.error) {
-            return res.status(400).json(validBody.error.details);
+            return res.status(400).json({msg: `error from joi-${validBody.error.details}`});
         }
         try {
             let editId = req.params.editId;
