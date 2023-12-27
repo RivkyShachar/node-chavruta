@@ -21,6 +21,27 @@ exports.studyRequestController = {
             res.status(500).json({ msg: "Internal Server Error" });
         }
     },
+    relevantRequestsList: async (req, res) => {
+        try {
+            let perPage = Math.min(req.query.perPage, 20) || 10;
+            let page = req.query.page || 1;
+            let sort = req.query.sort || "_id";
+            let reverse = req.query.reverse == "yes" ? -1 : 1;
+
+            // Fetch study requests with pagination and sorting
+            let data = await StudyRequestModel
+                .find({})
+                .limit(perPage)
+                .skip((page - 1) * perPage)
+                .sort({ [sort]: reverse })
+                .populate('user_id', 'first_name last_name profile_pic'); // Populate user information
+
+            res.status(200).json({ data, msg: "ok" });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ msg: "Internal Server Error" });
+        }
+    },
     myStudyRequests: async (req, res) => {
         let perPage = Math.min(req.query.perPage, 20) || 10;
         let page = req.query.page || 1;
