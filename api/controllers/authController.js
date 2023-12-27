@@ -9,7 +9,7 @@ exports.authController = {
             let validBody = validUser(req.body);
 
             if (validBody.error) {
-                return res.status(400).json({ error: validBody.error.details });
+                return res.status(400).json({ msg: `error from joi-${validBody.error.details}`});
             }
 
             let user = new UserModel(req.body);
@@ -23,7 +23,7 @@ exports.authController = {
             res.status(201).json({ msg: "User created successfully", user, token });
         } catch (err) {
             if (err.code === 11000) {
-                return res.status(400).json({ msg: "Email already in use, try logging in", code: 11000 });
+                return res.status(400).json({ msg: "Email already in use, try logging in"});
             }
             console.error(err);
             res.status(500).json({ msg: "Internal Server Error" });
@@ -35,7 +35,7 @@ exports.authController = {
             let validBody = validLogin(req.body);
 
             if (validBody.error) {
-                return res.status(400).json({ error: validBody.error.details });
+                return res.status(400).json({ msg: `error from joi-${validBody.error.details}` });
             }
 
             let user = await UserModel.findOne({ email: req.body.email });
@@ -63,25 +63,25 @@ exports.authController = {
         }
     },
 
-    changePassword: async (req, res) => {
-        try {
-            // ... (code for change password logic)
+    // changePassword: async (req, res) => {
+    //     try {
+    //         // ... (code for change password logic)
 
-            res.status(200).json({ msg: "Password changed successfully" });
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ msg: "Internal Server Error" });
-        }
-    },
+    //         res.status(200).json({ msg: "Password changed successfully" });
+    //     } catch (err) {
+    //         console.error(err);
+    //         res.status(500).json({ msg: "Internal Server Error" });
+    //     }
+    // },
 
-    forgotPassword: async (req, res) => {
-        try {
-            // ... (code for forgot password logic)
+    // forgotPassword: async (req, res) => {
+    //     try {
+    //         // ... (code for forgot password logic)
 
-            res.status(200).json({ msg: "Password reset initiated successfully" });
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ msg: "Internal Server Error" });
-        }
-    },
+    //         res.status(200).json({ msg: "Password reset initiated successfully" });
+    //     } catch (err) {
+    //         console.error(err);
+    //         res.status(500).json({ msg: "Internal Server Error" });
+    //     }
+    // },
 };
