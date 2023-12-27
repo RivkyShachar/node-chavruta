@@ -1,5 +1,6 @@
-const {validateStudyRequest} = require("../validations/studyRequestValidation");
-const {StudyRequestModel} = require("../models/studyRequestModel")
+const { validateStudyRequest } = require("../validations/studyRequestValidation");
+const { StudyRequestModel } = require("../models/studyRequestModel")
+const {UserModel} = require("../models/userModel")
 exports.studyRequestController = {
     requestsList: async (req, res) => {
         try {
@@ -15,7 +16,7 @@ exports.studyRequestController = {
                 .skip((page - 1) * perPage)
                 .sort({ [sort]: reverse });
 
-            res.status(200).json({data, msg: "ok"});
+            res.status(200).json({ data, msg: "ok" });
         } catch (err) {
             console.error(err);
             res.status(500).json({ msg: "Internal Server Error" });
@@ -23,6 +24,15 @@ exports.studyRequestController = {
     },
     relevantRequestsList: async (req, res) => {
         try {
+            // Fetch the user by ID to get the gender
+            const currentUser = await UserModel.findById(req.tokenData._id);
+
+            if (!currentUser) {
+                return res.status(404).json({ msg: "User not found" });
+            }
+
+            const userGender = currentUser.gender;
+
             let perPage = Math.min(req.query.perPage, 20) || 10;
             let page = req.query.page || 1;
             let sort = req.query.sort || "_id";
@@ -30,12 +40,15 @@ exports.studyRequestController = {
 
             // Fetch study requests with pagination and sorting
             let data = await StudyRequestModel
-                .find({})
+                .find({
+                    user_id: { $ne: req.tokenData._id }, // Exclude requests from the current user
+                    // state: 'open', // Include only open requests (modify as needed)
+                    // Add additional conditions based on user gender
+                })
                 .limit(perPage)
                 .skip((page - 1) * perPage)
                 .sort({ [sort]: reverse })
-                .populate('user_id', 'first_name last_name profile_pic'); // Populate user information
-
+                .populate('user_id', 'first_name last_name profile_pic gender'); // Populate user information
             res.status(200).json({ data, msg: "ok" });
         } catch (err) {
             console.error(err);
@@ -47,31 +60,32 @@ exports.studyRequestController = {
         let page = req.query.page || 1;
         let sort = req.query.sort || "_id";
         let reverse = req.query.reverse == "yes" ? -1 : 1;
-    
+
         try {
             let data = await StudyRequestModel
                 .find({ user_id: req.tokenData._id })
                 .limit(perPage)
                 .skip((page - 1) * perPage)
                 .sort({ [sort]: reverse })
-            res.status(201).json(data);
+                .populate('user_id', 'first_name last_name profile_pic');
+            res.status(200).json({ data, msg: "ok" });
         }
         catch (err) {
             console.log(err)
-            res.status(500).json({ msg: "err", err })
+            res.status(500).json({ msg: "Internal Server Error" })
         }
-    
+
     },
     search: async (req, res) => {
         let perPage = req.query.perPage || 10;
         let page = req.query.page || 1;
-    
+
         try {
             let queryT = req.query.topic;
             let queryL = req.query.language;
             let searchTopicReg = new RegExp(queryT, "i");
             let searchLanguageReg = new RegExp(queryL, "i");
-    
+
             let data = await StudyRequestModel.find({
                 $and: [
                     { topics: { $in: [searchTopicReg] } },
@@ -81,7 +95,7 @@ exports.studyRequestController = {
                 .limit(perPage)
                 .skip((page - 1) * perPage)
                 .sort({ _id: -1 });
-    
+
             res.status(201).json(data);
         }
         catch (err) {
@@ -91,20 +105,20 @@ exports.studyRequestController = {
     },
     singleRequest: async (req, res) => {
         try {
-          let idSingle = req.params.idSingle1;
-          let data = await StudyRequestModel.findOne({ _id: idSingle });
-      
-          if (data === null) {
-            res.status(404).json({ msg: "No item found" });
-          } else {
-            res.status(200).json(data);
-          }
+            let idSingle = req.params.idSingle1;
+            let data = await StudyRequestModel.findOne({ _id: idSingle });
+
+            if (data === null) {
+                res.status(404).json({ msg: "No item found" });
+            } else {
+                res.status(200).json(data);
+            }
         } catch (err) {
-          console.error(err);
-          res.status(500).json({ msg: "Internal server error", err: err.message });
-        }
-      },
-      duration: async (req, res) => {
+            console.error(err);
+            res.status(500).json({ msg: "Internal server error", err: err.message });
+        }
+    },
+    duration: async (req, res) => {
         let perPage = req.query.perPage || 10;
         let page = req.query.page || 1;
         let sort = req.query.sort || "_id"
@@ -114,7 +128,7 @@ exports.studyRequestController = {
             let maxP = req.query.max;
             if (minP && maxP) {
                 let data = await StudyRequestModel.find({ $and: [{ "studyDuration.min": { $gte: minP } }, { "studyDuration.max": { $lte: maxP } }] })
-    
+
                     .limit(perPage)
                     .skip((page - 1) * perPage)
                     .sort({ [sort]: reverse })
@@ -149,40 +163,40 @@ exports.studyRequestController = {
         let perPage = req.query.perPage || 10;
         let page = req.query.page || 1;
         try {
-          let topN = req.params.topName;
-          let topReg = new RegExp(topN, "i")
-          let data = await StudyRequestModel.find({ topics: { $in: [topReg] } })
-            .limit(perPage)
-            .skip((page - 1) * perPage)
-            .sort({ _id: -1 })
-          res.json(data);
+            let topN = req.params.topName;
+            let topReg = new RegExp(topN, "i")
+            let data = await StudyRequestModel.find({ topics: { $in: [topReg] } })
+                .limit(perPage)
+                .skip((page - 1) * perPage)
+                .sort({ _id: -1 })
+            res.json(data);
         }
         catch (err) {
-          console.log(err);
-          res.status(500).json({ msg: "there is an error try again later", err })
-        }
-      },
-      addRequest: async (req, res) => {
+            console.log(err);
+            res.status(500).json({ msg: "there is an error try again later", err })
+        }
+    },
+    addRequest: async (req, res) => {
         let validBody = validateStudyRequest(req.body);
         if (validBody.error) {
-            return res.status(400).json({msg: `error from joi-${validBody.error.details}`});
+            return res.status(400).json({ msg: `error from joi-${validBody.error.details}` });
         }
         try {
             let studyRequest = new StudyRequestModel(req.body);
             // add the user_id of the user that add the studyRequest
             studyRequest.user_id = req.tokenData._id;
             await studyRequest.save();
-            res.status(201).json({data: studyRequest, msg: "Study request saved succesfully"});
+            res.status(201).json({ data: studyRequest, msg: "Study request saved succesfully" });
         }
         catch (err) {
             console.log(err);
-            res.status(500).json({ msg: "Internal Server Error"  })
+            res.status(500).json({ msg: "Internal Server Error" })
         }
     },
     editRequest: async (req, res) => {
         let validBody = validateStudyRequest(req.body);
         if (validBody.error) {
-            return res.status(400).json({msg: `error from joi-${validBody.error.details}`});
+            return res.status(400).json({ msg: `error from joi-${validBody.error.details}` });
         }
         try {
             let editId = req.params.editId;

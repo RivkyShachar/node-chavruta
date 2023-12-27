@@ -9,7 +9,7 @@ router.get("/requestsList", authAdmin, studyRequestController.requestsList)
 router.get("/relevantRequestsList", auth, studyRequestController.relevantRequestsList)
 
 // get all the requests that the user has posted - by token
-// router.get("/myStudyRequests", auth, studyRequestController.myStudyRequests)
+router.get("/myStudyRequests", auth, studyRequestController.myStudyRequests)
 
 //search by language and topic
 // router.get("/search",studyRequestController.search );
