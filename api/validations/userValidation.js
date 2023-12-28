@@ -8,17 +8,17 @@ Joi.objectId = JoiObjectId;
 const DEFAULT_IMG = "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg";
 const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+{}\[\]:;<>,.?~\\-]{8,32}$/;
 
-const validatePhoneNumber = (value, helpers) => {
-    try {
-        const phoneNumber = PhoneNumber(value, 'any');
-        if (!phoneNumber.isValid()) {
-            return helpers.error('any.invalid');
-        }
-        return value; // Return the valid phone number
-    } catch (error) {
-        return helpers.error('any.invalid');
-    }
-}
+// const validatePhoneNumber = (value, helpers) => {
+//     try {
+//         const phoneNumber = PhoneNumber(value, 'any');
+//         if (!phoneNumber.isValid()) {
+//             return helpers.error('any.invalid');
+//         }
+//         return value; // Return the valid phone number
+//     } catch (error) {
+//         return helpers.error('any.invalid');
+//     }
+// }
 
 exports.validUser = (_reqBody) => {
     const joiSchema = Joi.object({
@@ -48,7 +48,7 @@ exports.validUser = (_reqBody) => {
         markedNo: Joi.array().items(Joi.objectId()).default([]),
         privacy: Joi.boolean().default(false),
         description: Joi.string().max(1000).default(""),
-        phoneNumber: Joi.string().custom(validatePhoneNumber, 'Custom phone number validation').required(),
+        phoneNumber: Joi.string(),//.custom(validatePhoneNumber, 'Custom phone number validation').required(),
         ageRange: Joi.number().min(0).max(5).default(0),
         education_level: Joi.number().min(0).max(5).default(0),
         locationRange: Joi.number().min(0).max(5).default(0),
