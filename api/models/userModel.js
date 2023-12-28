@@ -2,12 +2,12 @@ const mongoose = require("mongoose");
 const timezoneSupport = require("timezone-support");
 
 let userSchema = new mongoose.Schema({
-    gender: Boolean,
+    gender: Boolean, //true=male, false=female
     first_name: String,
     last_name: String,
     date_of_birth: {
         type: Date
-    },
+    }, 
     address: {
         city: String,
         country: String,
@@ -30,11 +30,12 @@ let userSchema = new mongoose.Schema({
                 if (timezone) {
                     return timezone.id;
                 }
+                else{return "Asia/Jerusalem"}
             }
-            return "UTC"; // Default to UTC if the country or timezone is not available
+            return "Asia/Jerusalem";
         },
     },
-    status: Boolean,
+    status: Boolean, //true=connected and false not connected
     lastOnline: Date,
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
@@ -44,7 +45,7 @@ let userSchema = new mongoose.Schema({
     marked_no: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StudyRequest' }],
     privacy: Boolean,
     description: String,
-    phone_number: Number,
+    phone_number: String,
     age_range: Number,
     education_range: Number, 
     location_range: Number,

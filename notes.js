@@ -277,3 +277,65 @@
 // });
 
 // exports.UserModel = mongoose.model("users", userSchema);
+{
+    "gender": true,
+    "first_name": "John",
+    "last_name": "Doe",
+    "date_of_birth": "1990-01-01",
+    "address": {
+      "city": "CityName",
+      "country": "CountryName"
+    },
+    "profile_pic": "https://example.com/default-profile-pic.jpg",
+    "email": "john.doe3@example.com",
+    "password": "SecurePassword123",
+    "language": "English",
+    "education": [],
+    "status": true,
+    "lastOnline": "2023-01-01T12:00:00Z",
+    "following": [],
+    "followers": [],
+    "blocked": [],
+    "list_request": [],
+    "marked_yes": [],
+    "marked_no": [],
+    "privacy": true,
+    "description": "User description goes here",
+    "phone_number": 1234567890,
+    "age_range": 25,
+    "education_level": 3,
+    "location_range": 50,
+    "friend_list_range": 30,
+    "premium": false,
+    "active": true,
+    "role": "user"
+  }
+
+{
+    "studyDuration": {
+        "min": 30,
+        "max": 120
+    },
+    "preferredHours": {
+        "from": "2023-01-01T08:00:00.000Z",
+        "to": "2023-01-01T12:00:00.000Z"
+    },
+    "_id": "658c16cf3b6476b95011e7fc",
+    "preferredLanguages": [
+        "English",
+        "Spanish"
+    ],
+    "topics": [
+        "Mathematics",
+        "Science"
+    ],
+    "levelOfStudy": 3,
+    "description": "Looking for a study partner for mathematics and science.",
+    "age_range": 18,
+    "education_range": 4,
+    "location_range": 10,
+    "friend_list_range": 5,
+    "matches_list": [],
+    "state": "open",
+    "__v": 0
+},
