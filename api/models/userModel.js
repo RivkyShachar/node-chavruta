@@ -51,6 +51,7 @@ let userSchema = new mongoose.Schema({
     ageRange: Number,
     educationRange: Number, 
     locationRange: Number,
+    educationRange: Number,
     friendListRange: Number,
     premium: Boolean,
     active: Boolean,

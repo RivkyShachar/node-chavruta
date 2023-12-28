@@ -50,7 +50,7 @@ exports.validUser = (_reqBody) => {
         description: Joi.string().max(1000).default(""),
         phoneNumber: Joi.string(),//.custom(validatePhoneNumber, 'Custom phone number validation').required(),
         ageRange: Joi.number().min(0).max(5).default(0),
-        education_level: Joi.number().min(0).max(5).default(0),
+        educationRange: Joi.number().min(0).max(5).default(0),
         locationRange: Joi.number().min(0).max(5).default(0),
         friendListRange: Joi.number().min(0).max(5).default(0),
         premium: Joi.boolean().default(false),
