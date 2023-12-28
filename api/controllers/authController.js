@@ -9,7 +9,8 @@ exports.authController = {
             let validBody = validUser(req.body);
 
             if (validBody.error) {
-                return res.status(400).json({ msg: `error from joi-${validBody.error.details}`});
+                const errorMessage = validBody.error.details.map(detail => detail.message).join(', ');
+                return res.status(400).json({ msg: `error from joi-${errorMessage}`});
             }
 
             let user = new UserModel(req.body);
@@ -40,7 +41,8 @@ exports.authController = {
             let validBody = validLogin(req.body);
 
             if (validBody.error) {
-                return res.status(400).json({ msg: `error from joi-${validBody.error.details}` });
+                const errorMessage = validBody.error.details.map(detail => detail.message).join(', ');
+                return res.status(400).json({ msg: `error from joi-${errorMessage}`});
             }
 
             let user = await UserModel.findOne({ email: req.body.email });
