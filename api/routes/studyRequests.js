@@ -14,7 +14,8 @@ router.get("/myStudyRequests", auth, studyRequestController.myStudyRequests)
 //search by language and topic
 // router.get("/search",studyRequestController.search );
 
-// router.get("/single/:idSingle1", auth, studyRequestController.singleRequest)
+// get request by id
+router.get("/single/:idSingle1", auth, studyRequestController.singleRequest)
 
 // router.get("/duration", studyRequestController.duration )
 

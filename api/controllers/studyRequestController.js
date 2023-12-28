@@ -1,6 +1,9 @@
 const { validateStudyRequest } = require("../validations/studyRequestValidation");
 const { StudyRequestModel } = require("../models/studyRequestModel")
 const {UserModel} = require("../models/userModel")
+
+const handleGetStudyRequest= () => {}
+
 exports.studyRequestController = {
     requestsList: async (req, res) => {
         try {
@@ -76,6 +79,21 @@ exports.studyRequestController = {
         }
 
     },
+    singleRequest: async (req, res) => {
+        try {
+            let idSingle = req.params.idSingle1;
+            let data = await StudyRequestModel.findOne({ _id: idSingle });
+
+            if (data === null) {
+                res.status(404).json({ msg: "No item found" });
+            } else {
+                res.status(200).json({data, msg: "ok"});
+            }
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ msg: "Internal server error", err: err.message });
+        }
+    },
     search: async (req, res) => {
         let perPage = req.query.perPage || 10;
         let page = req.query.page || 1;
@@ -101,21 +119,6 @@ exports.studyRequestController = {
         catch (err) {
             console.log(err);
             res.status(500).json({ msg: "There was an error. Please try again later.", err });
-        }
-    },
-    singleRequest: async (req, res) => {
-        try {
-            let idSingle = req.params.idSingle1;
-            let data = await StudyRequestModel.findOne({ _id: idSingle });
-
-            if (data === null) {
-                res.status(404).json({ msg: "No item found" });
-            } else {
-                res.status(200).json(data);
-            }
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ msg: "Internal server error", err: err.message });
         }
     },
     duration: async (req, res) => {
