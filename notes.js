@@ -94,14 +94,14 @@
 //       let perPage = Math.min(req.query.perPage, 20) || 10;
 //       let page = req.query.page || 1;
 
-//       // Fetch distinct profile_pic values for all users excluding passwords
+//       // Fetch distinct profilePic values for all users excluding passwords
 //       let data = await UserModel
-//         .distinct("profile_pic", { profile_pic: { $exists: true, $ne: null } })
+//         .distinct("profilePic", { profilePic: { $exists: true, $ne: null } })
 //         .limit(perPage)
 //         .skip((page - 1) * perPage);
 
 //       // Filter out users with default profile pictures
-//       const profilesList = data.filter(profile_pic => !isDefaultImage(profile_pic));
+//       const profilesList = data.filter(profilePic => !isDefaultImage(profilePic));
 
 //       res.status(200).json({data: profilesList, msg:"ok"});
 //     } catch (err) {
@@ -189,10 +189,10 @@
 //     },
 //     levelOfStudy: Number,
 //     description:String,
-//     age_range: Number,
-//     education_range: Number, 
-//     location_range: Number,
-//     friend_list_range: Number,
+//     ageRange: Number,
+//     educationRange: Number, 
+//     locationRange: Number,
+//     friendListRange: Number,
 //     matches_list: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
 //     state: {
 //         type: String,
@@ -208,16 +208,16 @@
 
 // let userSchema = new mongoose.Schema({
 //     gender: Boolean,
-//     first_name: String,
-//     last_name: String,
-//     date_of_birth: {
+//     firstName: String,
+//     lastName: String,
+//     dateOfBirth: {
 //         type: Date
 //     },
 //     address: {
 //         city: String,
 //         country: String,
 //     },
-//     profile_pic: {
+//     profilePic: {
 //         type: String,
 //         default: function () {
 //             return this.gender ? "female.png" : "male.png";
@@ -244,19 +244,19 @@
 //     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
 //     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
 //     blocked: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
-//     list_request: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StudyRequest' }],
-//     marked_yes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StudyRequest' }],
-//     marked_no: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StudyRequest' }],
+//     requestList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StudyRequest' }],
+//     markedYes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StudyRequest' }],
+//     markedNo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StudyRequest' }],
 //     privacy: Boolean,
 //     description: String,
-//     phone_number: Number,
-//     age_range: Number,
-//     education_range: Number, 
-//     location_range: Number,
-//     friend_list_range: Number,
+//     phoneNumber: Number,
+//     ageRange: Number,
+//     educationRange: Number, 
+//     locationRange: Number,
+//     friendListRange: Number,
 //     premium: Boolean,
 //     active: Boolean,
-//     date_created: {
+//     dateCreated: {
 //         type: Date,
 //         default: Date.now()
 //     },
@@ -268,44 +268,44 @@
 
 // // Virtual property to calculate age
 // userSchema.virtual('age').get(function () {
-//     if (this.date_of_birth) {
-//         const birthYear = this.date_of_birth.getFullYear();
+//     if (this.dateOfBirth) {
+//         const birthYear = this.dateOfBirth.getFullYear();
 //         const currentYear = new Date().getFullYear();
 //         return currentYear - birthYear;
 //     }
-//     return null; // Handle the case where date_of_birth is not set
+//     return null; // Handle the case where dateOfBirth is not set
 // });
 
 // exports.UserModel = mongoose.model("users", userSchema);
 {
     "gender": true,
-    "first_name": "John",
-    "last_name": "Doe",
-    "date_of_birth": "1990-01-01",
+    "firstName": "John",
+    "lastName": "Doe",
+    "dateOfBirth": "1990-01-01",
     "address": {
       "city": "CityName",
       "country": "CountryName"
     },
-    "profile_pic": "https://example.com/default-profile-pic.jpg",
+    "profilePic": "https://example.com/default-profile-pic.jpg",
     "email": "john.doe3@example.com",
     "password": "SecurePassword123",
     "language": "English",
-    "education": [],
+    "educations": [],
     "status": true,
     "lastOnline": "2023-01-01T12:00:00Z",
     "following": [],
     "followers": [],
     "blocked": [],
-    "list_request": [],
-    "marked_yes": [],
-    "marked_no": [],
+    "requestList": [],
+    "markedYes": [],
+    "markedNo": [],
     "privacy": true,
     "description": "User description goes here",
-    "phone_number": 1234567890,
-    "age_range": 25,
+    "phoneNumber": 1234567890,
+    "ageRange": 25,
     "education_level": 3,
-    "location_range": 50,
-    "friend_list_range": 30,
+    "locationRange": 50,
+    "friendListRange": 30,
     "premium": false,
     "active": true,
     "role": "user"
@@ -331,10 +331,10 @@
     ],
     "levelOfStudy": 3,
     "description": "Looking for a study partner for mathematics and science.",
-    "age_range": 18,
-    "education_range": 4,
-    "location_range": 10,
-    "friend_list_range": 5,
+    "ageRange": 18,
+    "educationRange": 4,
+    "locationRange": 10,
+    "friendListRange": 5,
     "matches_list": [],
     "state": "open",
     "__v": 0

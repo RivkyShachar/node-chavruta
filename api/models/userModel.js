@@ -3,16 +3,17 @@ const timezoneSupport = require("timezone-support");
 
 let userSchema = new mongoose.Schema({
     gender: Boolean, //true=male, false=female
-    first_name: String,
-    last_name: String,
-    date_of_birth: {
+    firstName: String,
+    lastName: String,
+    dateOfBirth: {
         type: Date
     }, 
     address: {
         city: String,
         country: String,
     },
-    profile_pic: {
+    location: String,
+    profilePic: {
         type: String,
         default: function () {
             return this.gender ? "female.png" : "male.png";
@@ -21,7 +22,7 @@ let userSchema = new mongoose.Schema({
     email: { type: String, unique: true },
     password: String,
     language: String,
-    education: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Education' }], // Assuming 'Education' is a model
+    educations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Education' }], // Assuming 'Education' is a model
     timezone: {
         type: String,
         default: function () {
@@ -37,22 +38,23 @@ let userSchema = new mongoose.Schema({
     },
     status: Boolean, //true=connected and false not connected
     lastOnline: Date,
+    topics: [String],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
     blocked: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
-    list_request: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StudyRequest' }],
-    marked_yes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StudyRequest' }],
-    marked_no: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StudyRequest' }],
+    requestList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StudyRequest' }],
+    markedYes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StudyRequest' }],
+    markedNo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StudyRequest' }],
     privacy: Boolean,
     description: String,
-    phone_number: String,
-    age_range: Number,
-    education_range: Number, 
-    location_range: Number,
-    friend_list_range: Number,
+    phoneNumber: String,
+    ageRange: Number,
+    educationRange: Number, 
+    locationRange: Number,
+    friendListRange: Number,
     premium: Boolean,
     active: Boolean,
-    date_created: {
+    dateCreated: {
         type: Date,
         default: Date.now()
     },
@@ -64,12 +66,12 @@ let userSchema = new mongoose.Schema({
 
 // Virtual property to calculate age
 userSchema.virtual('age').get(function () {
-    if (this.date_of_birth) {
-        const birthYear = this.date_of_birth.getFullYear();
+    if (this.dateOfBirth) {
+        const birthYear = this.dateOfBirth.getFullYear();
         const currentYear = new Date().getFullYear();
         return currentYear - birthYear;
     }
-    return null; // Handle the case where date_of_birth is not set
+    return null; // Handle the case where dateOfBirth is not set
 });
 
 exports.UserModel = mongoose.model("users", userSchema);

@@ -45,7 +45,7 @@ exports.studyRequestController = {
             .limit(perPage)
             .skip((page - 1) * perPage)
             .sort({ [sort]: reverse })
-            .populate('user_id', 'first_name last_name profile_pic gender'); // Populate user information
+            .populate('user_id', 'firstName lastName profilePic gender'); // Populate user information
         res.status(200).json({ data, msg: "ok" });
     }),
     myStudyRequests: asyncHandler(async (req, res) => {
@@ -59,7 +59,7 @@ exports.studyRequestController = {
             .limit(perPage)
             .skip((page - 1) * perPage)
             .sort({ [sort]: reverse })
-            .populate('user_id', 'first_name last_name profile_pic');
+            .populate('user_id', 'firstName lastName profilePic');
         res.status(200).json({ data, msg: "ok" });
 
     }),

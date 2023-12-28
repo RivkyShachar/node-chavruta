@@ -22,10 +22,10 @@ exports.validateStudyRequest = (_reqBody) => {
         }).required(),
         levelOfStudy: Joi.number().integer().min(1).max(5).required(),
         description: Joi.string().max(500),
-        age_range: Joi.number().integer().min(18).max(99).required(),
-        education_range: Joi.number().integer().min(1).max(5).required(),
-        location_range: Joi.number().integer().min(1).max(100).required(),
-        friend_list_range: Joi.number().integer().min(1).max(100).required(),
+        ageRange: Joi.number().integer().min(18).max(99).required(),
+        educationRange: Joi.number().integer().min(1).max(5).required(),
+        locationRange: Joi.number().integer().min(1).max(100).required(),
+        friendListRange: Joi.number().integer().min(1).max(100).required(),
         state: Joi.string().valid('open', 'close', 'available').required(),
     }).custom((value, helpers) => {
         // Calculate the duration in hours

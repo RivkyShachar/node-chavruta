@@ -69,14 +69,14 @@ exports.userController = {
       let perPage = Math.min(req.query.perPage, 20) || 10;
       let page = req.query.page || 1;
 
-      // Fetch distinct profile_pic values for all users excluding passwords
+      // Fetch distinct profilePic values for all users excluding passwords
       let data = await UserModel
-        .distinct("profile_pic", { profile_pic: { $exists: true, $ne: null } })
+        .distinct("profilePic", { profilePic: { $exists: true, $ne: null } })
         .limit(perPage)
         .skip((page - 1) * perPage);
 
       // Filter out users with default profile pictures
-      const profilesList = data.filter(profile_pic => !isDefaultImage(profile_pic));
+      const profilesList = data.filter(profilePic => !isDefaultImage(profilePic));
 
       res.status(200).json({data: profilesList, msg:"ok"});
     } catch (err) {
