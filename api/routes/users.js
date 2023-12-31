@@ -16,7 +16,7 @@ router.get("/searchName/:name", auth, userController.searchName)
 // get all users details - only admin allow
 router.get("/profileList", authAdmin, userController.profileList)
 
-// router.get("/single/:idSingle1", userController.singleUser);
+router.get("/single/:idSingle1", userController.singleUser);
 
 // router.put("/:idEdit", auth, userController.editUser)
 
