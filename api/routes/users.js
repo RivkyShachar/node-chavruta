@@ -19,7 +19,7 @@ router.get("/searchName/:name", userController.searchName)
 // router.get("/profileList", authAdmin, userController.profileList)
 router.get("/profileList", userController.profileList)
 
-// router.get("/single/:idSingle1", userController.singleUser);
+router.get("/single/:idSingle1", userController.singleUser);
 
 // router.put("/:idEdit", auth, userController.editUser)
 

@@ -94,7 +94,7 @@ exports.userController = {
       if (data === null) {
         res.status(404).json({ msg: "No item found" });
       } else {
-        res.status(200).json(data);
+        res.status(200).json({data, msg:"ok"});
       }
     } catch (err) {
       console.error(err);
