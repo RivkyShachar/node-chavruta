@@ -68,22 +68,23 @@ exports.userController = {
     try {
       let perPage = Math.min(req.query.perPage, 20) || 10;
       let page = req.query.page || 1;
-
-      // Fetch distinct profilePic values for all users excluding passwords
+  
+      // Fetch distinct _id, profilePic, firstName, and lastName values for all users excluding passwords
       let data = await UserModel
-        .distinct("profilePic", { profilePic: { $exists: true, $ne: null } })
-        .limit(perPage)
-        .skip((page - 1) * perPage);
-
+        .find({ profilePic: { $exists: true, $ne: null } })
+        .select("_id profilePic firstName lastName");
+  
       // Filter out users with default profile pictures
-      const profilesList = data.filter(profilePic => !isDefaultImage(profilePic));
-
-      res.status(200).json({data: profilesList, msg:"ok"});
+      const profilesList = data.filter(user => !isDefaultImage(user.profilePic));
+  
+      res.status(200).json({ data: profilesList, msg: "ok" });
     } catch (err) {
       console.error(err);
       res.status(500).json({ msg: "Internal Server Error" });
     }
   },
+  
+  
   singleUser: async (req, res) => {
     try {
       let idSingle = req.params.idSingle1;
