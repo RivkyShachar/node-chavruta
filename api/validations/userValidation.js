@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const PhoneNumber = require('libphonenumber-js');
+// const PhoneNumber = require('libphonenumber-js');
 const JoiObjectId = require('joi-objectid')(Joi);
 
 // Assign the JoiObjectId to Joi.objectId
@@ -48,7 +48,7 @@ exports.validUser = (_reqBody) => {
         markedNo: Joi.array().items(Joi.objectId()).default([]),
         privacy: Joi.boolean().default(false),
         description: Joi.string().max(1000).default(""),
-        phoneNumber: Joi.string(),//.custom(validatePhoneNumber, 'Custom phone number validation').required(),
+        phoneNumber: Joi.string().min(3).max(12),//.custom(validatePhoneNumber, 'Custom phone number validation').required(),
         ageRange: Joi.number().min(0).max(5).default(0),
         educationRange: Joi.number().min(0).max(5).default(0),
         locationRange: Joi.number().min(0).max(5).default(0),

@@ -2,12 +2,12 @@ const Joi = require("joi");
 
 exports.validEduItem = (_reqBody) => {
 
-    let joiSchema = Joi.object({
+    const joiSchema = Joi.object({
         degree: Joi.string().min(2).max(99).required(),
-        institution_name: Joi.string().min(2).max(99).required(),
-        start_year: Joi.date(),
-        end_year: Joi.date()
-    })
+        name: Joi.string().min(2).max(99).required(),
+        startDate: Joi.date().required(),
+        endDate: Joi.date()
+    });
 
     return joiSchema.validate(_reqBody);
 }
