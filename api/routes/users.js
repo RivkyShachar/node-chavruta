@@ -8,13 +8,16 @@ const router = express.Router();
 // router.get("/myInfo", auth, userController.myInfo)
 
 // get all users details - only admin allow
-router.get("/usersList", authAdmin, userController.userList)
+// router.get("/usersList", authAdmin, userController.userList)
+router.get("/usersList", userController.userList)
 
 // get user by name 
-router.get("/searchName/:name", auth, userController.searchName)
+// router.get("/searchName/:name", auth, userController.searchName)
+router.get("/searchName/:name", userController.searchName)
 
 // get all users details - only admin allow
-router.get("/profileList", authAdmin, userController.profileList)
+// router.get("/profileList", authAdmin, userController.profileList)
+router.get("/profileList", userController.profileList)
 
 // router.get("/single/:idSingle1", userController.singleUser);
 
