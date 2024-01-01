@@ -1,7 +1,6 @@
-const { string } = require("joi");
 const mongoose = require("mongoose");
 
-let eduItem = new mongoose.Schema({
+exports.eduItem = new mongoose.Schema({
     degree: {
         type: String,
         required: true,
@@ -22,4 +21,4 @@ let eduItem = new mongoose.Schema({
         type: Date
     }
 });
-exports.eduItem = mongoose.model("educations", eduItem);
+// exports.eduItem = mongoose.model("educations", eduItem);

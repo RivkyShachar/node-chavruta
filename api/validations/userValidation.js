@@ -35,7 +35,12 @@ exports.validUser = (_reqBody) => {
         email: Joi.string().min(2).max(99).email().required(),
         password: Joi.string().regex(passwordRegex).required(),
         language: Joi.string().max(32).default("English"),
-        educations: Joi.array().items(Joi.objectId()).default([]),
+        educations: Joi.array().items(Joi.object({
+            degree: Joi.string().min(2).max(99).required(),
+            name: Joi.string().min(2).max(99).required(),
+            startDate: Joi.date().required(),
+            endDate: Joi.date()
+        })).default([]),
         timezone: Joi.string().max(99).default("Asia/Jerusalem"),
         status: Joi.boolean().default(false),
         lastOnline: Joi.date(),

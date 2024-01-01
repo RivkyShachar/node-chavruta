@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const timezoneSupport = require("timezone-support");
+const { eduItem } = require("../models/educationModel");
 
 let userSchema = new mongoose.Schema({
     gender: Boolean, //true=male, false=female
@@ -22,7 +23,7 @@ let userSchema = new mongoose.Schema({
     email: { type: String, unique: true },
     password: String,
     language: String,
-    educations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Education' }], // Assuming 'Education' is a model
+    educations: [eduItem],
     timezone: {
         type: String,
         default: function () {
