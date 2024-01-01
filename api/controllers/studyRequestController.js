@@ -38,14 +38,14 @@ exports.studyRequestController = {
         // Fetch study requests with pagination and sorting
         let data = await StudyRequestModel
             .find({
-                user_id: { $ne: req.tokenData._id }, // Exclude requests from the current user
+                userId: { $ne: req.tokenData._id }, // Exclude requests from the current user
                 // state: 'open', // Include only open requests (modify as needed)
                 // Add additional conditions based on user gender
             })
             .limit(perPage)
             .skip((page - 1) * perPage)
             .sort({ [sort]: reverse })
-            .populate('user_id', 'firstName lastName profilePic gender'); // Populate user information
+            .populate('userId', 'firstName lastName profilePic gender'); // Populate user information
         res.status(200).json({ data, msg: "ok" });
     }),
     myStudyRequests: asyncHandler(async (req, res) => {
@@ -55,11 +55,11 @@ exports.studyRequestController = {
         let reverse = req.query.reverse == "yes" ? -1 : 1;
 
         let data = await StudyRequestModel
-            .find({ user_id: req.tokenData._id })
+            .find({ userId: req.tokenData._id })
             .limit(perPage)
             .skip((page - 1) * perPage)
             .sort({ [sort]: reverse })
-            .populate('user_id', 'firstName lastName profilePic');
+            .populate('userId', 'firstName lastName profilePic');
         res.status(200).json({ data, msg: "ok" });
 
     }),
@@ -166,8 +166,8 @@ exports.studyRequestController = {
         }
 
         let studyRequest = new StudyRequestModel(req.body);
-        // add the user_id of the user that add the studyRequest
-        studyRequest.user_id = req.tokenData._id;
+        // add the userId of the user that add the studyRequest
+        studyRequest.userId = req.tokenData._id;
         await studyRequest.save();
         res.status(201).json({ data: studyRequest, msg: "Study request saved succesfully" });
 
@@ -187,7 +187,7 @@ exports.studyRequestController = {
                 data = await StudyRequestModel.updateOne({ _id: editId }, req.body)
             }
             else {
-                data = await StudyRequestModel.updateOne({ _id: editId, user_id: req.tokenData._id }, req.body)
+                data = await StudyRequestModel.updateOne({ _id: editId, userId: req.tokenData._id }, req.body)
             }
             res.status(201).json(data);
         }
@@ -204,7 +204,7 @@ exports.studyRequestController = {
                 data = await StudyRequestModel.deleteOne({ _id: delId })
             }
             else {
-                data = await StudyRequestModel.deleteOne({ _id: delId, user_id: req.tokenData._id })
+                data = await StudyRequestModel.deleteOne({ _id: delId, userId: req.tokenData._id })
             }
             res.status(201).json(data);
         }

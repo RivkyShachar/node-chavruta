@@ -24,11 +24,11 @@ const studyRequestSchema = new mongoose.Schema({
         enum: ['done', 'past', 'open', 'close'],
         default: 'open', // Set a default value if not provided
     },
-    matches_list: {
+    matchesList: {
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
         default: [],
     },
-    user_id: {
+    userId: {
         type: String,
         default: '',
     },
