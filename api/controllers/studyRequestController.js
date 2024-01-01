@@ -162,8 +162,8 @@ exports.studyRequestController = {
     addRequest: asyncHandler(async (req, res) => {
         let validBody = validateStudyRequest(req.body);
         if (validBody.error) {
-            return res.status(400).json({ msg: `error from joi-${validBody.error.details}` });
-        }
+            const errorMessage = validBody.error.details.map(detail => detail.message).join(', ');
+            return res.status(400).json({ msg: `error from joi-${errorMessage}`});        }
 
         let studyRequest = new StudyRequestModel(req.body);
         // add the userId of the user that add the studyRequest
@@ -171,15 +171,13 @@ exports.studyRequestController = {
         await studyRequest.save();
         res.status(201).json({ data: studyRequest, msg: "Study request saved succesfully" });
 
-        console.log(err);
-        res.status(500).json({ msg: "Internal Server Error" })
 
     }),
     editRequest: async (req, res) => {
         let validBody = validateStudyRequest(req.body);
         if (validBody.error) {
-            return res.status(400).json({ msg: `error from joi-${validBody.error.details}` });
-        }
+            const errorMessage = validBody.error.details.map(detail => detail.message).join(', ');
+            return res.status(400).json({ msg: `error from joi-${errorMessage}`});        }
         try {
             let editId = req.params.editId;
             let data;

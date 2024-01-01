@@ -22,6 +22,7 @@ router.get("/single/:idSingle1", auth, studyRequestController.singleRequest)
 // router.get("/topic/:topName", studyRequestController.topic)
 
 router.post("/", auth, studyRequestController.addRequest)
+// router.post("/", studyRequestController.addRequest)
 
 // router.put("/:editId", auth, studyRequestController.editRequest)
 
