@@ -7,23 +7,31 @@ const studyRequestSchema = new mongoose.Schema({
         min: Number,
         max: Number,
     },
-    preferredHours: {
-        from: Date,
-        to: Date
-    },
-    levelOfStudy: Number,
+    startDateAndTime: Date,
     description:String,
+    levelOfStudy: Number,
     ageRange: Number,
     educationRange: Number, 
     locationRange: Number,
     friendListRange: Number,
-    matches_list: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
+    privacy: {
+        type: String,
+        enum: ['private', 'public'],
+        default: 'public', // Set a default value if not provided
+    },
     state: {
         type: String,
         enum: ['done', 'past', 'open', 'close'],
         default: 'open', // Set a default value if not provided
     },
-    user_id:String,
+    matches_list: {
+        type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
+        default: [],
+    },
+    user_id: {
+        type: String,
+        default: '',
+    },
 })
 
 exports.StudyRequestModel = mongoose.model("studyRequests", studyRequestSchema);

@@ -5,7 +5,7 @@ const {userController} = require("../controllers/userController")
 const router = express.Router();
 
 // get current user details
-// router.get("/myInfo", auth, userController.myInfo)
+router.get("/myInfo", auth, userController.myInfo)
 
 // get all users details - only admin allow
 router.get("/usersList", authAdmin, userController.userList)
