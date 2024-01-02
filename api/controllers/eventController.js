@@ -1,4 +1,8 @@
-const { asyncHandler } = require("../helpers/wrap")
+const { asyncHandler } = require("../helpers/wrap");
+const StudyRequestModel = require("../models/studyRequestModel");
+const UserModel = require("../models/userModel");
+
+
 
 
 async function markRequest(req, res, isYes) {
@@ -9,7 +13,7 @@ async function markRequest(req, res, isYes) {
 
     try {
         // Find the study request
-        const studyRequest = await StudyRequestModel.findOne({ _id: requestId });
+        const studyRequest = await StudyRequestModel.findById(requestId);
 
         if (!studyRequest) {
             return res.status(404).json({ msg: "Study request not found" });

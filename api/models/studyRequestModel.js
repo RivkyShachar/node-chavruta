@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+
 const studyRequestSchema = new mongoose.Schema({
     preferredLanguages: [String],
     topics: [String],
@@ -37,7 +38,7 @@ const studyRequestSchema = new mongoose.Schema({
 // Add a pre-delete middleware
 studyRequestSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
     const delId = this.getQuery()._id;
-
+    const { UserModel } = require("./userModel");
     // Find all users whose requestList contains delId
     const usersToUpdate = await UserModel.find({ requestList: delId });
 

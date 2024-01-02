@@ -7,6 +7,9 @@ const { asyncHandler } = require("../helpers/wrap")
 exports.userController = {
   myInfo: asyncHandler(async (req, res) => {
     // the middlware auth added the tokenData
+    if(!req.tokenData._id){
+      return res.status(401).json({ msg: "token error" });
+    }
     let userInfo = await UserModel.findOne({ _id: req.tokenData._id }, { password: 0 });
     if (!userInfo) {
       return res.status(404).json({ msg: "User not found" });
@@ -77,7 +80,7 @@ exports.userController = {
 
   singleUser: asyncHandler(async (req, res) => {
     let idSingle = req.params.idSingle1;
-    let data = await UserModel.findOne({ _id: idSingle });
+    let data = await UserModel.findById(idSingle);
 
     if (data === null) {
       res.status(404).json({ msg: "No user found" });
@@ -103,7 +106,7 @@ exports.userController = {
       }
 
       // Fetch the updated user
-      let updatedUser = await UserModel.findOne({ _id: idEdit });
+      let updatedUser = await UserModel.findById(idEdit);
 
       // Hash the password before sending it in the response
       updatedUser.password = await bcrypt.hash(updatedUser.password, 10);

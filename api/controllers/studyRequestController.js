@@ -76,7 +76,7 @@ exports.studyRequestController = {
     singleRequest: asyncHandler(async (req, res) => {
 
         let idSingle = req.params.idSingle1;
-        let data = await StudyRequestModel.findOne({ _id: idSingle });
+        let data = await StudyRequestModel.findById(idSingle);
 
         if (data === null) {
             res.status(404).json({ msg: "No item found" });
@@ -185,7 +185,7 @@ exports.studyRequestController = {
         await studyRequest.save();
         //update the user with _id =  req.tokenData._id and add the studyRequest,
         // also handle all types of errors (for instance the _id already in the requestList)
-        const user = await UserModel.findOne({ _id: req.tokenData._id });
+        const user = await UserModel.findById(req.tokenData._id);
 
         if (!user) {
             return res.status(404).json({ msg: "User not found" });
