@@ -76,4 +76,34 @@ userSchema.virtual('age').get(function () {
     return null; // Handle the case where dateOfBirth is not set
 });
 
+// Add a pre-delete middleware
+userSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
+    const delId = this.getQuery()._id;
+
+    // Find all users who have delId in their markedYes or markedNo lists
+    const usersToUpdate = await UserModel.find({
+        $or: [
+            { markedYes: delId },
+            { markedNo: delId },
+        ],
+    });
+
+    // Remove delId from markedYes or markedNo for each user
+    const updatePromises = usersToUpdate.map(async (user) => {
+        if (user.markedYes && user.markedYes.includes(delId)) {
+            user.markedYes = user.markedYes.filter(id => id !== delId);
+        }
+        if (user.markedNo && user.markedNo.includes(delId)) {
+            user.markedNo = user.markedNo.filter(id => id !== delId);
+        }
+
+        await user.save();
+    });
+
+    // Wait for all updates to complete
+    await Promise.all(updatePromises);
+
+    next();
+});
+
 exports.UserModel = mongoose.model("users", userSchema);

@@ -29,9 +29,30 @@ const studyRequestSchema = new mongoose.Schema({
         default: [],
     },
     userId: {
-        type: String,
-        default: '',
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users',
     },
 })
+
+// Add a pre-delete middleware
+studyRequestSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
+    const delId = this.getQuery()._id;
+
+    // Find all users whose requestList contains delId
+    const usersToUpdate = await UserModel.find({ requestList: delId });
+
+    // Remove delId from requestList for each user
+    const updatePromises = usersToUpdate.map(async (user) => {
+        if (user.requestList && user.requestList.includes(delId)) {
+            user.requestList = user.requestList.filter(id => id !== delId);
+            await user.save();
+        }
+    });
+
+    // Wait for all updates to complete
+    await Promise.all(updatePromises);
+
+    next();
+});
 
 exports.StudyRequestModel = mongoose.model("studyRequests", studyRequestSchema);

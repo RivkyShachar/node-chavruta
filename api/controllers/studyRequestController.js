@@ -209,37 +209,21 @@ exports.studyRequestController = {
             return res.status(400).json({ msg: `error from joi-${errorMessage}` });
         }
 
-        let editId = req.params.editId;
-        let data;
-        if (req.tokenData.role == "admin") {
-            data = await StudyRequestModel.updateOne({ _id: editId }, req.body)
-        }
-        else {
-            data = await StudyRequestModel.updateOne({ _id: editId, userId: req.tokenData._id }, req.body)
-        }
-        //neet to fix the nModivied
-        if (!data || data.nModified === 0) {
-            return res.status(400).json({ msg: "No changes made or operation not enabled" });
-        }
+        let delId = req.params.delId;
+        // Reuse the deleteRequest method to delete the existing request
+        await exports.studyRequestController.deleteRequest(req, res);
+
+        // Reuse the addRequest method to create a new request
+        req.params.delId = undefined;  // Reset delId to avoid conflicts
+        req.body._id = delId;  // Set _id to delId to update the existing request
+        await exports.studyRequestController.addRequest(req, res);
+
         // Fetch the updated request
-        let updatedRequest = await StudyRequestModel.findOne({ _id: editId });
-        res.status(201).json({ data: updatedRequest, msg: "Request updated successfully" });
+        let updatedRequest = await StudyRequestModel.findOne({ _id: delId });
+        res.status(200).json({ data: updatedRequest, msg: "Request updated successfully" });
     }),
     deleteRequest: asyncHandler(async (req, res) => {
         let delId = req.params.delId;
-        const user = await UserModel.findById(req.tokenData._id);
-        if (!user) {
-            return res.status(404).json({ msg: "User not found" });
-        }
-
-        // Check if the study request with delId exists in the user's requestList
-        const index = user.requestList.indexOf(delId);
-
-        if (index !== -1) {
-            // Remove the study request _id from the user's requestList
-            user.requestList.splice(index, 1);
-            await user.save();
-        }
 
         let data;
         if (req.tokenData.role == "admin") {

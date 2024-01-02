@@ -24,8 +24,8 @@ router.get("/single/:idSingle1", auth, studyRequestController.singleRequest)
 router.post("/", auth, studyRequestController.addRequest)
 // router.post("/", studyRequestController.addRequest)
 
-// router.put("/:editId", auth, studyRequestController.editRequest)
+router.put("/:delId", auth, studyRequestController.editRequest)
 
-// router.delete("/:delId", auth, studyRequestController.deleteRequest)
+router.delete("/:delId", auth, studyRequestController.deleteRequest)
 
 module.exports = router;
