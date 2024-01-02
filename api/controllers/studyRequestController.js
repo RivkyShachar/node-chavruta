@@ -220,27 +220,36 @@ exports.studyRequestController = {
         //neet to fix the nModivied
         if (!data || data.nModified === 0) {
             return res.status(400).json({ msg: "No changes made or operation not enabled" });
-          }
-          // Fetch the updated request
-      let updatedRequest = await StudyRequestModel.findOne({ _id: editId });
-      res.status(201).json({ data: updatedRequest, msg: "Request updated successfully" });
+        }
+        // Fetch the updated request
+        let updatedRequest = await StudyRequestModel.findOne({ _id: editId });
+        res.status(201).json({ data: updatedRequest, msg: "Request updated successfully" });
     }),
-    deleteRequest: async (req, res) => {
-        try {
-            let delId = req.params.delId;
-            let data;
-            if (req.tokenData.role == "admin") {
-                data = await StudyRequestModel.deleteOne({ _id: delId })
-            }
-            else {
-                data = await StudyRequestModel.deleteOne({ _id: delId, userId: req.tokenData._id })
-            }
-            res.status(201).json(data);
+    deleteRequest: asyncHandler(async (req, res) => {
+        let delId = req.params.delId;
+        const user = await UserModel.findById(req.tokenData._id);
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
         }
-        catch (err) {
-            console.log(err);
-            res.status(500).json({ msg: "err", err })
+
+        // Check if the study request with delId exists in the user's requestList
+        const index = user.requestList.indexOf(delId);
+
+        if (index !== -1) {
+            // Remove the study request _id from the user's requestList
+            user.requestList.splice(index, 1);
+            await user.save();
         }
-    }
+
+        let data;
+        if (req.tokenData.role == "admin") {
+            data = await StudyRequestModel.deleteOne({ _id: delId })
+        }
+        else {
+            data = await StudyRequestModel.deleteOne({ _id: delId, userId: req.tokenData._id })
+        }
+        res.status(204).json({ msg: "Study request deleted successfully", data });
+
+    })
 
 }
