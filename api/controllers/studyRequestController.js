@@ -15,7 +15,8 @@ exports.studyRequestController = {
             .find({})
             .limit(perPage)
             .skip((page - 1) * perPage)
-            .sort({ [sort]: reverse });
+            .sort({ [sort]: reverse })
+            .populate('userId', 'firstName lastName profilePic gender');;
 
         if (!data || data.length === 0) {
             return res.status(404).json({ msg: "No requests found" });
