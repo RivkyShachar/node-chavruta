@@ -5,15 +5,15 @@ const router = express.Router();
 
 // Register a New User:
 // Request Type: POST
-// Endpoint: /register
+// Endpoint: /auth/register
 // Payload: User details for registration
-// Response: Status 201 if successful, 400 for validation errors, 500 for internal server error.
+// Response: Status 201 if successful (with a token), 400 for validation errors, 500 for internal server error.
 router.post("/register",authController.register )
 
 // create a token if the user is valid
 // Login:
 // Request Type: POST
-// Endpoint: /login
+// Endpoint: /auth/login
 // Payload: User credentials for login
 // Response: Status 200 if successful (with a token), 401 for incorrect credentials, 400 for validation errors, 500 for internal server error.
 router.post("/login",authController.login )
