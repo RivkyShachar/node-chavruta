@@ -48,9 +48,29 @@ router.get("/searchName/:name", userController.searchName)
 // router.get("/profileList", authAdmin, userController.profileList)
 router.get("/profileList", userController.profileList)
 
-router.get("/single/:idSingle1", userController.singleUser);
+// Get Single User by ID
+// Request Type: GET
+// Endpoint: /users/single/:idSingle1
+// Middleware: requires authentication (auth middleware)
+// Response: 
+//   - Status 200 if successful (with user details)
+//   - Status 401 if token not valid
+//   - Status 404 if no user found
+//   - Status 500 for internal server error.
+router.get("/single/:idSingle1",auth, userController.singleUser);
 
-// router.put("/:idEdit", auth, userController.editUser)
+// Edit User
+// Request Type: PUT
+// Endpoint: /users/:idEdit
+// Middleware: Requires authentication (auth middleware) or admin privileges (authAdmin middleware)
+// Payload: New user details
+// Response: 
+//   - Status 200 if successful (with updated user details)
+//   - Status 400 for validation errors or unauthorized operation
+//   - Status 401 if token not valid
+//   - Status 403 if permision faild
+//   - Status 500 for internal server error.
+router.put("/:idEdit", auth, userController.editUser)
 
 // delete user accont - by user token
 // router.delete("/deleteAccount", auth, userController.deleteAccount )

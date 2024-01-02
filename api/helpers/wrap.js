@@ -4,7 +4,7 @@ exports.asyncHandler = (asyncFn) => {
             await asyncFn(req, res);
         } catch (err) {
             if (err.code === 11000) {
-                return res.status(400).json({ msg: "Email already in use, try logging in" });
+                return res.status(400).json({ msg: "Email already in use" });
             }
             // Check for specific error types (e.g., validation errors, database errors) and provide appropriate messages
             if (err.name === 'ValidationError') {

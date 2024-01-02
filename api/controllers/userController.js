@@ -75,50 +75,48 @@ exports.userController = {
   }),
 
 
-  singleUser: async (req, res) => {
-    try {
-      let idSingle = req.params.idSingle1;
-      let data = await UserModel.findOne({ _id: idSingle });
+  singleUser: asyncHandler(async (req, res) => {
+    let idSingle = req.params.idSingle1;
+    let data = await UserModel.findOne({ _id: idSingle });
 
-      console.log(data);
-
-      if (data === null) {
-        res.status(404).json({ msg: "No item found" });
-      } else {
-        res.status(200).json({ data, msg: "ok" });
-      }
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ msg: "Internal server error", err: err.message });
+    if (data === null) {
+      res.status(404).json({ msg: "No user found" });
+    } else {
+      res.status(200).json({ data, msg: "ok" });
     }
-  },
-  editUser: async (req, res) => {
+  }),
+  editUser: asyncHandler(async (req, res) => {
     let validBody = validUser(req.body);
     if (validBody.error) {
-      return res.status(400).json(validBody.error.details);
+      const errorMessage = validBody.error.details.map(detail => detail.message).join(', ');
+      return res.status(400).json({ msg: `error from joi-${errorMessage}` });
     }
-    try {
-      let idEdit = req.params.idEdit;
-      let data;
-      if (req.tokenData.role === "admin") {
-        data = await UserModel.updateOne({ _id: idEdit }, req.body)
+    let idEdit = req.params.idEdit;
+    let data;
+
+    // Check if the user is an admin or updating their own profile
+    if (req.tokenData.role === "admin" || idEdit === req.tokenData._id) {
+      data = await UserModel.updateOne({ _id: idEdit }, req.body);
+       // need to fix the nModified with the real whing that returned from db
+      if (!data || data.nModified === 0) {
+        return res.status(400).json({ msg: "No changes made or operation not enabled" });
       }
-      else if (idEdit === req.tokenData._id) {
-        data = await UserModel.updateOne({ _id: idEdit }, req.body)
-      }
-      if (!data) {
-        return res.status(400).json({ err: "This operation is not enabled !" })
-      }
-      let user = await UserModel.findOne({ _id: idEdit });
-      user.password = await bcrypt.hash(user.password, 10);
-      await user.save()
-      res.status(200).json({ msg: data })
+
+      // Fetch the updated user
+      let updatedUser = await UserModel.findOne({ _id: idEdit });
+
+      // Hash the password before sending it in the response
+      updatedUser.password = await bcrypt.hash(updatedUser.password, 10);
+      await updatedUser.save();
+
+      // Mask the password in the response
+      updatedUser.password = "**********";
+
+      res.status(200).json({ data: updatedUser, msg: "User updated successfully" });
+    } else {
+      return res.status(403).json({ msg: "Permission denied. You are not authorized to perform this operation." });
     }
-    catch (err) {
-      console.log(err);
-      res.status(400).json({ err })
-    }
-  },
+  }),
   deleteAccount: async (req, res) => {
     try {
       if (req.tokenData.role === "admin") {
