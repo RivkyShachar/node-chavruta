@@ -1,7 +1,7 @@
 const { validateStudyRequest } = require("../validations/studyRequestValidation");
 const { StudyRequestModel } = require("../models/studyRequestModel")
 const { UserModel } = require("../models/userModel")
-const {asyncHandler} = require("../helpers/wrap")
+const { asyncHandler } = require("../helpers/wrap")
 
 exports.studyRequestController = {
     requestsList: asyncHandler(async (req, res) => {
@@ -17,6 +17,9 @@ exports.studyRequestController = {
             .skip((page - 1) * perPage)
             .sort({ [sort]: reverse });
 
+        if (!data || data.length === 0) {
+            return res.status(404).json({ msg: "No requests found" });
+        }
         res.status(200).json({ data, msg: "ok" });
 
     }),
@@ -46,6 +49,9 @@ exports.studyRequestController = {
             .skip((page - 1) * perPage)
             .sort({ [sort]: reverse })
             .populate('userId', 'firstName lastName profilePic gender'); // Populate user information
+        if (!data || data.length === 0) {
+            return res.status(404).json({ msg: "No requests found" });
+        }
         res.status(200).json({ data, msg: "ok" });
     }),
     myStudyRequests: asyncHandler(async (req, res) => {
@@ -60,6 +66,9 @@ exports.studyRequestController = {
             .skip((page - 1) * perPage)
             .sort({ [sort]: reverse })
             .populate('userId', 'firstName lastName profilePic');
+        if (!data || data.length === 0) {
+            return res.status(404).json({ msg: "No requests found" });
+        }
         res.status(200).json({ data, msg: "ok" });
 
     }),
@@ -163,37 +172,59 @@ exports.studyRequestController = {
         let validBody = validateStudyRequest(req.body);
         if (validBody.error) {
             const errorMessage = validBody.error.details.map(detail => detail.message).join(', ');
-            return res.status(400).json({ msg: `error from joi-${errorMessage}`});        }
+            return res.status(400).json({ msg: `error from joi-${errorMessage}` });
+        }
+        if (!req.tokenData._id) {
+            return res.status(401).json({ msg: "User not authenticated or invalid token" });
+        }
 
         let studyRequest = new StudyRequestModel(req.body);
         // add the userId of the user that add the studyRequest
         studyRequest.userId = req.tokenData._id;
         await studyRequest.save();
+        //update the user with _id =  req.tokenData._id and add the studyRequest,
+        // also handle all types of errors (for instance the _id already in the requestList)
+        const user = await UserModel.findOne({ _id: req.tokenData._id });
+
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+
+        // Check if studyRequest._id already exists in the user's requestList
+        if (user.requestList.includes(studyRequest._id)) {
+            return res.status(400).json({ msg: "Study request already added to user's request list" });
+        }
+
+        // Add studyRequest._id to the user's requestList
+        user.requestList.push(studyRequest._id);
+
+        // Save the updated user
+        await user.save();
         res.status(201).json({ data: studyRequest, msg: "Study request saved succesfully" });
-
-
     }),
-    editRequest: async (req, res) => {
+    editRequest: asyncHandler(async (req, res) => {
         let validBody = validateStudyRequest(req.body);
         if (validBody.error) {
             const errorMessage = validBody.error.details.map(detail => detail.message).join(', ');
-            return res.status(400).json({ msg: `error from joi-${errorMessage}`});        }
-        try {
-            let editId = req.params.editId;
-            let data;
-            if (req.tokenData.role == "admin") {
-                data = await StudyRequestModel.updateOne({ _id: editId }, req.body)
-            }
-            else {
-                data = await StudyRequestModel.updateOne({ _id: editId, userId: req.tokenData._id }, req.body)
-            }
-            res.status(201).json(data);
+            return res.status(400).json({ msg: `error from joi-${errorMessage}` });
         }
-        catch (err) {
-            console.log(err);
-            res.status(500).json({ msg: "err", err })
+
+        let editId = req.params.editId;
+        let data;
+        if (req.tokenData.role == "admin") {
+            data = await StudyRequestModel.updateOne({ _id: editId }, req.body)
         }
-    },
+        else {
+            data = await StudyRequestModel.updateOne({ _id: editId, userId: req.tokenData._id }, req.body)
+        }
+        //neet to fix the nModivied
+        if (!data || data.nModified === 0) {
+            return res.status(400).json({ msg: "No changes made or operation not enabled" });
+          }
+          // Fetch the updated request
+      let updatedRequest = await StudyRequestModel.findOne({ _id: editId });
+      res.status(201).json({ data: updatedRequest, msg: "Request updated successfully" });
+    }),
     deleteRequest: async (req, res) => {
         try {
             let delId = req.params.delId;

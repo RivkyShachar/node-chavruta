@@ -65,7 +65,7 @@ router.get("/single/:idSingle1",auth, userController.singleUser);
 // Middleware: Requires authentication (auth middleware) or admin privileges (authAdmin middleware)
 // Payload: New user details
 // Response: 
-//   - Status 200 if successful (with updated user details)
+//   - Status 201 if successful (with updated user details)
 //   - Status 400 for validation errors or unauthorized operation
 //   - Status 401 if token not valid
 //   - Status 403 if permision faild

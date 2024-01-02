@@ -112,7 +112,7 @@ exports.userController = {
       // Mask the password in the response
       updatedUser.password = "**********";
 
-      res.status(200).json({ data: updatedUser, msg: "User updated successfully" });
+      res.status(201).json({ data: updatedUser, msg: "User updated successfully" });
     } else {
       return res.status(403).json({ msg: "Permission denied. You are not authorized to perform this operation." });
     }
