@@ -2,89 +2,79 @@ const { UserModel } = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const { validUser } = require("../validations/userValidation");
 const { isDefaultImage } = require("../helpers/userHelper")
-
+const { asyncHandler } = require("../helpers/wrap")
 
 exports.userController = {
-  myInfo: async (req, res) => {
-    try {
-      let userInfo = await UserModel.findOne({ _id: req.tokenData._id }, { password: 0 });
-      res.status(201).json(userInfo);
+  myInfo: asyncHandler(async (req, res) => {
+    // the middlware auth added the tokenData
+    let userInfo = await UserModel.findOne({ _id: req.tokenData._id }, { password: 0 });
+    if (!userInfo) {
+      return res.status(404).json({ msg: "User not found" });
     }
-    catch (err) {
-      res.status(500).json({ msg: "err", err })
+    res.status(201).json({ data: userInfo, msg: "User information retrieved successfully" });
+  }),
+  userList: asyncHandler(async (req, res) => {
+    let perPage = Math.min(req.query.perPage, 20) || 10;
+    let page = req.query.page || 1;
+    let sort = req.query.sort || "_id";
+    let reverse = req.query.reverse == "yes" ? -1 : 1;
+
+    // Fetch all users with all data
+    let data = await UserModel
+      .find({})
+      .limit(perPage)
+      .skip((page - 1) * perPage)
+      .sort({ [sort]: reverse });
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({ msg: "No users found" });
     }
-  },
-  userList: async (req, res) => {
-    try {
-      let perPage = Math.min(req.query.perPage, 20) || 10;
-      let page = req.query.page || 1;
-      let sort = req.query.sort || "_id";
-      let reverse = req.query.reverse == "yes" ? -1 : 1;
 
-      // Fetch all users with all data
-      let data = await UserModel
-        .find({})
-        .limit(perPage)
-        .skip((page - 1) * perPage)
-        .sort({ [sort]: reverse });
+    res.status(200).json({ data, msg: "ok" });
+  }),
+  searchName: asyncHandler(async (req, res) => {
+    let perPage = Math.min(req.query.perPage, 20) || 10;
+    let page = req.query.page || 1;
+    let sort = req.query.sort || "_id";
+    let reverse = req.query.reverse == "yes" ? -1 : 1;
 
-      res.status(200).json({data,msg:"ok"});
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ msg: "Internal Server Error" });
+    const searchQuery = req.params.name;
+
+    // Define a regular expression for the search query (case-insensitive)
+    const regex = new RegExp(searchQuery, "i");
+
+    // Fetch users based on the search query
+    let data = await UserModel
+      .find({
+        $or: [
+          { firstName: regex },
+          { lastName: regex },
+        ],
+      })
+      .limit(perPage)
+      .skip((page - 1) * perPage)
+      .sort({ [sort]: reverse });
+    if (!data || data.length === 0) {
+      return res.status(404).json({ msg: "No users found" });
     }
-  },
-  searchName: async (req, res) => {
-    try {
-      let perPage = Math.min(req.query.perPage, 20) || 10;
-      let page = req.query.page || 1;
-      let sort = req.query.sort || "_id";
-      let reverse = req.query.reverse == "yes" ? -1 : 1;
 
-      const searchQuery = req.params.name;
+    res.status(200).json({ data, msg: "ok" });
+  }),
+  profileList: asyncHandler(async (req, res) => {
+    // need to add that will get only few images not everything
 
-      // Define a regular expression for the search query (case-insensitive)
-      const regex = new RegExp(searchQuery, "i");
+    // Fetch distinct _id, profilePic, firstName, and lastName values for all users excluding passwords
+    let data = await UserModel
+      .find({ profilePic: { $exists: true, $ne: null } })
+      .select("_id profilePic firstName lastName");
 
-      // Fetch users based on the search query
-      let data = await UserModel
-        .find({
-          $or: [
-            { firstName: regex },
-            { lastName: regex },
-          ],
-        })
-        .limit(perPage)
-        .skip((page - 1) * perPage)
-        .sort({ [sort]: reverse });
+    // Filter out users with default profile pictures
+    const profilesList = data.filter(user => !isDefaultImage(user.profilePic));
 
-      res.status(200).json({data, msg: "ok"});
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ msg: "Internal Server Error" });
-    }
-  },
-  profileList: async (req, res) => {
-    try {
-      let perPage = Math.min(req.query.perPage, 20) || 10;
-      let page = req.query.page || 1;
-  
-      // Fetch distinct _id, profilePic, firstName, and lastName values for all users excluding passwords
-      let data = await UserModel
-        .find({ profilePic: { $exists: true, $ne: null } })
-        .select("_id profilePic firstName lastName");
-  
-      // Filter out users with default profile pictures
-      const profilesList = data.filter(user => !isDefaultImage(user.profilePic));
-  
-      res.status(200).json({ data: profilesList, msg: "ok" });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ msg: "Internal Server Error" });
-    }
-  },
-  
-  
+    res.status(200).json({ data: profilesList, msg: "ok" });
+  }),
+
+
   singleUser: async (req, res) => {
     try {
       let idSingle = req.params.idSingle1;
@@ -95,7 +85,7 @@ exports.userController = {
       if (data === null) {
         res.status(404).json({ msg: "No item found" });
       } else {
-        res.status(200).json({data, msg:"ok"});
+        res.status(200).json({ data, msg: "ok" });
       }
     } catch (err) {
       console.error(err);
