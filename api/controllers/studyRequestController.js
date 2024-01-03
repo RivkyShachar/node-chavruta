@@ -103,6 +103,32 @@ exports.studyRequestController = {
     
         res.status(201).json({ data, msg: "User information retrieved successfully" });
     }),
+    getMatchUsers: asyncHandler(async (req, res) => {
+        const StudyRequestModel = require("../models/studyRequestModel");
+        const requestId = req.params.idReq;
+        const studyRequest = await StudyRequestModel.findById(requestId);
+    
+        if (!studyRequest) {
+          return res.status(404).json({ msg: "Study request not found" });
+        }
+        const { matchesList } = studyRequest;
+    
+        // Array to store user details
+        const matchUsersDetails = [];
+    
+        // Loop through matchesList and fetch user details
+        for (const userId of matchesList) {
+          const user = await UserModel.findById(userId);
+    
+          if (user) {
+            const { _id, firstName, lastName, profilePic } = user;
+            matchUsersDetails.push({ _id, firstName, lastName, profilePic });
+          }
+        }
+    
+        // Respond with the user details
+        res.status(200).json({ data: matchUsersDetails, msg: "Matches users returned successfully" });
+      }),
     search: async (req, res) => {
         let perPage = req.query.perPage || 10;
         let page = req.query.page || 1;

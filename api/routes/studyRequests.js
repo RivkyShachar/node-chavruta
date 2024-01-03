@@ -19,7 +19,7 @@ router.get("/marked",auth, studyRequestController.marked)
 router.get("/single/:idSingle1", auth, studyRequestController.singleRequest)
 
 // router.get("/duration", studyRequestController.duration )
-
+router.get("/matchUsers/:idReq",auth, userController.getMatchUsers);
 // router.get("/topic/:topName", studyRequestController.topic)
 
 router.post("/", auth, studyRequestController.addRequest)
