@@ -5,7 +5,7 @@ const { asyncHandler } = require("../helpers/wrap")
 
 exports.studyRequestController = {
     requestsList: asyncHandler(async (req, res) => {
-        let perPage = Math.min(req.query.perPage, 20) || 10;
+        let perPage = Math.min(req.query.perPage, 200) || 100;
         let page = req.query.page || 1;
         let sort = req.query.sort || "_id";
         let reverse = req.query.reverse == "yes" ? -1 : 1;
@@ -34,7 +34,7 @@ exports.studyRequestController = {
 
         const userGender = currentUser.gender;
 
-        let perPage = Math.min(req.query.perPage, 20) || 10;
+        let perPage = Math.min(req.query.perPage, 200) || 100;
         let page = req.query.page || 1;
         let sort = req.query.sort || "_id";
         let reverse = req.query.reverse == "yes" ? -1 : 1;
@@ -56,7 +56,7 @@ exports.studyRequestController = {
         res.status(200).json({ data, msg: "ok" });
     }),
     myStudyRequests: asyncHandler(async (req, res) => {
-        let perPage = Math.min(req.query.perPage, 20) || 10;
+        let perPage = Math.min(req.query.perPage, 200) || 100;
         let page = req.query.page || 1;
         let sort = req.query.sort || "_id";
         let reverse = req.query.reverse == "yes" ? -1 : 1;
