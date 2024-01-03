@@ -29,6 +29,11 @@ const studyRequestSchema = new mongoose.Schema({
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
         default: [],
     },
+    finalChavruta:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users',
+    },
+    zoomLink: String,
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users',
