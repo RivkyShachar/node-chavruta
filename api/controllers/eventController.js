@@ -1,6 +1,6 @@
 const { asyncHandler } = require("../helpers/wrap");
-const StudyRequestModel = require("../models/studyRequestModel");
-const UserModel = require("../models/userModel");
+const {StudyRequestModel} = require("../models/studyRequestModel");
+const {UserModel} = require("../models/userModel");
 
 
 
@@ -10,7 +10,6 @@ async function markRequest(req, res, isYes) {
     const userId = req.tokenData._id;
     const markedField = isYes ? "markedYes" : "markedNo";
     const oppositeField = isYes ? "markedNo" : "markedYes";
-
     try {
         // Find the study request
         const studyRequest = await StudyRequestModel.findById(requestId);
