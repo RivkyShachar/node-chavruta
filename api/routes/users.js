@@ -32,7 +32,6 @@ router.get("/myInfo", auth, userController.myInfo)
 //   - Status 500 for internal server error.
 // router.get("/usersList", authAdmin, userController.userList)
 router.get("/usersList", userController.userList)
-router.get("/marked", userController.marked)
 
 // get user by name 
 // router.get("/searchName/:name", auth, userController.searchName)

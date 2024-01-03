@@ -76,13 +76,32 @@ exports.studyRequestController = {
     singleRequest: asyncHandler(async (req, res) => {
 
         let idSingle = req.params.idSingle1;
-        let data = await StudyRequestModel.findById(idSingle);
+        let data = await StudyRequestModel.findOne({_id:idSingle});
 
         if (data === null) {
             res.status(404).json({ msg: "No item found" });
         } else {
             res.status(200).json({ data, msg: "ok" });
         }
+    }),marked: asyncHandler(async (req, res) => {
+        // the middlware auth added the tokenData
+        if(!req.tokenData._id){
+          return res.status(401).json({ msg: "token error" });
+        }
+        const userInfo = await UserModel.findOne({ _id: req.tokenData._id });
+        if (!userInfo) {
+          return res.status(404).json({ msg: "User not found" });
+        }
+    
+        // Fetch study requests concurrently
+        const [markedYesList, markedNoList] = await Promise.all([
+          Promise.all(userInfo.markedYes.map(id => StudyRequestModel.findById(id))),
+          Promise.all(userInfo.markedNo.map(id => StudyRequestModel.findById(id))),
+        ]);
+    
+        const data = { markedYes: markedYesList, markedNo: markedNoList };
+    
+        res.status(201).json({ data, msg: "User information retrieved successfully" });
     }),
     search: async (req, res) => {
         let perPage = req.query.perPage || 10;
