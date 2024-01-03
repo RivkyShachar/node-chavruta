@@ -30,12 +30,12 @@ router.get("/myInfo", auth, userController.myInfo)
 //   - Status 401 if not valid admin token
 //   - Status 404 if no user found
 //   - Status 500 for internal server error.
-// router.get("/usersList", authAdmin, userController.userList)
-router.get("/usersList", userController.userList)
+router.get("/usersList", authAdmin, userController.userList)
+// router.get("/usersList", userController.userList)
 
 // get user by name 
-// router.get("/searchName/:name", auth, userController.searchName)
-router.get("/searchName/:name", userController.searchName)
+router.get("/searchName/:name", auth, userController.searchName)
+// router.get("/searchName/:name", userController.searchName)
 
 // Get Profile List- only admin allow
 // Request Type: GET
@@ -45,8 +45,8 @@ router.get("/searchName/:name", userController.searchName)
 //   - Status 200 if successful (with user profiles)
 //   - Status 401 if not valid admin token
 //   - Status 500 for internal server error.
-// router.get("/profileList", authAdmin, userController.profileList)
-router.get("/profileList", userController.profileList)
+router.get("/profileList", authAdmin, userController.profileList)
+// router.get("/profileList", userController.profileList)
 
 // Get Single User by ID
 // Request Type: GET
