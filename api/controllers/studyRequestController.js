@@ -43,8 +43,8 @@ exports.studyRequestController = {
         let data = await StudyRequestModel
             .find({
                 userId: { $ne: req.tokenData._id }, // Exclude requests from the current user
-                // state: 'open', // Include only open requests (modify as needed)
-                // Add additional conditions based on user gender
+                state: 'open', // Include only open requests (modify as needed)
+                gender: userGender// Add additional conditions based on user gender
             })
             .limit(perPage)
             .skip((page - 1) * perPage)
@@ -105,9 +105,9 @@ exports.studyRequestController = {
 
         // Fetch study requests concurrently
         const [markedYesList, markedNoList] = await Promise.all([
-            Promise.all(userInfo.markedYes.map(id => StudyRequestModel.findById(id))),
-            Promise.all(userInfo.markedNo.map(id => StudyRequestModel.findById(id))),
-        ]);
+            Promise.all(userInfo.markedYes.map(id => StudyRequestModel.findOne({ _id: id, state: 'open' }))),
+            Promise.all(userInfo.markedNo.map(id => StudyRequestModel.findOne({ _id: id, state: 'open' }))),
+          ]);
 
         const data = { markedYes: markedYesList, markedNo: markedNoList };
 
