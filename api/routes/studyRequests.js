@@ -19,7 +19,6 @@ router.get("/marked",auth, studyRequestController.marked)
 router.get("/single/:idSingle1", auth, studyRequestController.singleRequest)
 
 // router.get("/duration", studyRequestController.duration )
-
 // router.get("/topic/:topName", studyRequestController.topic)
 
 router.post("/", auth, studyRequestController.addRequest)
@@ -28,5 +27,6 @@ router.post("/", auth, studyRequestController.addRequest)
 router.put("/:delId", auth, studyRequestController.editRequest)
 
 router.delete("/:delId", auth, studyRequestController.deleteRequest)
+router.get("/matchUsers/:idReq",auth, studyRequestController.getMatchUsers);
 
 module.exports = router;
