@@ -1,8 +1,10 @@
 const { asyncHandler } = require("../helpers/wrap");
-const {StudyRequestModel} = require("../models/studyRequestModel");
-const {UserModel} = require("../models/userModel");
+const { StudyRequestModel } = require("../models/studyRequestModel");
+const { UserModel } = require("../models/userModel");
 
-
+const checkForConflicts = (studyRequest, markedYesRequest) =>{
+    return false;
+}
 
 
 async function markRequest(req, res, isYes) {
@@ -71,5 +73,87 @@ exports.eventController = {
         };
 
         res.status(200).json({ data: markedRequests, msg: "" });
+    }),
+    finalizeRequest: asyncHandler(async (req, res) => {
+
+        const requestId = req.params.reqId;
+        const userId = req.params.userId;  // Get userId from the route parameters
+
+        const user = await UserModel.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+
+        // Find the study request by reqId
+        const studyRequest = await StudyRequestModel.findById(reqId);
+
+        if (!studyRequest) {
+            return res.status(404).json({ msg: "Study request not found" });
+        }
+
+        // Save the chavruta ID as finalChavruta in the request
+        studyRequest.finalChavruta = userId;
+        studyRequest.state = "close";
+
+        // Update the study request
+        await studyRequest.save();
+
+
+        // // Loop through the markedYes list of the user to find conflicts
+        // for (const markedYesId of user.markedYes) {
+        //     // Exclude the current requestId
+        //     if (markedYesId !== reqId) {
+        //         // Find the study request in markedYes list
+        //         const markedYesRequest = await StudyRequestModel.findById(markedYesId);
+
+        //         if (markedYesRequest) {
+        //             // Check for conflicts and remove if necessary
+        //             if (checkForConflicts(studyRequest, markedYesRequest)) {
+        //                 // Remove the conflicting request from matchesList
+        //                 markedYesRequest.matchesList.pull(userId);
+        //                 await markedYesRequest.save();
+        //             }
+        //         }
+        //     }
+        // }
+
+        // // Loop through the markedYes list and remove conflicting meetings
+        // const markedYesList = studyRequest.matchesList;
+
+        res.status(200).json({ msg: "Request finalized successfully" });
+    }),
+    wantToStudyWithMe: asyncHandler(async (req, res) => {
+        const requestId = req.params.reqId;
+
+        // Get the study request
+        const studyRequest = await StudyRequestModel.findById(requestId);
+
+        if (!studyRequest) {
+            return res.status(404).json({ msg: "Study request not found" });
+        }
+
+        // Get the matchList from the request
+        const matchList = studyRequest.matchesList;
+
+        // For each id in matchList, get the user details
+        const userDetailsPromises = matchList.map(async (userId) => {
+            const user = await UserModel.findById(userId);
+            if (user) {
+                // Return relevant user details
+                return {
+                    _id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    profilePic: user.profilePic,
+                };
+            }
+        });
+
+        // Wait for all user details to be fetched
+        const userDetails = await Promise.all(userDetailsPromises);
+
+        // The result is {data: [{_id, firstName, lastName, profilePic}, ...], msg: "returned successfully"}
+        res.status(200).json({ data: userDetails, msg: "Returned successfully" });
     }),
 }
