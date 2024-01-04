@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const crypto = require("crypto");
 const timezoneSupport = require("timezone-support");
 const { eduItem } = require("../models/educationModel");
 
@@ -63,7 +64,10 @@ let userSchema = new mongoose.Schema({
     role: {
         type: String,
         default: "user"
-    }
+    },
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
 });
 
 // Virtual property to calculate age
@@ -105,5 +109,21 @@ userSchema.pre('deleteOne', { document: false, query: true }, async function (ne
 
     next();
 });
+
+
+userSchema.methods.createPasswordResetToken = function () {
+    const resetToken = crypto
+      .randomBytes(32) /*32 number of characters */
+      .toString("hex"); /* convert it to the hexadecimal string */
+  
+    this.passwordResetToken = crypto //saving the encrypted reset token into db
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+  
+    this.passwordResetExpires = Date.now() + 10 * 1000 * 60; //milliseconds 10 min
+  
+    return resetToken; //returning the plain hex string token to be sent by email
+  };
 
 exports.UserModel = mongoose.model("users", userSchema);

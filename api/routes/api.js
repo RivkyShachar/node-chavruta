@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const {config} = require("../config/secret")
 const router = express.Router();
 
+// return the verify token
+// need to chenge to get!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 router.post("/verifyToken", (req, res) => {
     const { token } = req.body;
     console.log(token);

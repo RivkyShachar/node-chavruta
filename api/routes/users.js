@@ -59,6 +59,8 @@ router.get("/profileList", authAdmin, userController.profileList)
 //   - Status 500 for internal server error.
 router.get("/single/:idSingle1",auth, userController.singleUser);
 
+router.get("/matchUsers/:idReq",auth, userController.getMatchUsers);
+
 // Edit User
 // Request Type: PUT
 // Endpoint: /users/:idEdit

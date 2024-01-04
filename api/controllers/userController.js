@@ -7,7 +7,7 @@ const { asyncHandler } = require("../helpers/wrap")
 exports.userController = {
   myInfo: asyncHandler(async (req, res) => {
     // the middlware auth added the tokenData
-    if(!req.tokenData._id){
+    if (!req.tokenData._id) {
       return res.status(401).json({ msg: "token error" });
     }
     let userInfo = await UserModel.findOne({ _id: req.tokenData._id }, { password: 0 });
@@ -126,7 +126,7 @@ exports.userController = {
     // Check if the user is an admin or updating their own profile
     if (req.tokenData.role === "admin" || idEdit === req.tokenData._id) {
       data = await UserModel.updateOne({ _id: idEdit }, req.body);
-       // need to fix the nModified with the real whing that returned from db
+      // need to fix the nModified with the real whing that returned from db
       if (!data || data.nModified === 0) {
         return res.status(400).json({ msg: "No changes made or operation not enabled" });
       }

@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const { validUser, validLogin } = require("../validations/userValidation");
 const { createToken } = require("../helpers/userHelper");
 const { asyncHandler } = require("../helpers/wrap")
+const {sendEmail} = require("../helpers/email")
 
 exports.authController = {
     register: asyncHandler(async (req, res) => {
@@ -64,26 +65,65 @@ exports.authController = {
         // });
         res.status(200).json({ msg: "Login successful", token });
     }),
-
-    // changePassword: async (req, res) => {
-    //     try {
-    //         // ... (code for change password logic)
-
-    //         res.status(200).json({ msg: "Password changed successfully" });
-    //     } catch (err) {
-    //         console.error(err);
-    //         res.status(500).json({ msg: "Internal Server Error" });
-    //     }
-    // },
-
-    // forgotPassword: async (req, res) => {
-    //     try {
-    //         // ... (code for forgot password logic)
-
-    //         res.status(200).json({ msg: "Password reset initiated successfully" });
-    //     } catch (err) {
-    //         console.error(err);
-    //         res.status(500).json({ msg: "Internal Server Error" });
-    //     }
-    // },
+    resetPassword: asyncHandler(async (req, res) => {
+        const { resetToken } = req.params;
+        const encryptedResetToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+      const user = await UserModel.findOne({
+        passwordResetToken: encryptedResetToken,
+        passwordResetExpires: { $gt: Date.now() },
+      });
+      if (!user) {
+        return res.status(400).json({ msg: "Token is expired or wrong" });
+    }
+    const { password } = req.body;
+    user.password = password;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    user.passwordChangedAt = Date.now();
+    await user.save();
+    let token = createToken(user._id, user.role);
+    res.status(200).json({ msg: "Reset succesfully", token,data:user });
+    }),
+    forgotPassword: asyncHandler(async (req, res) => {
+        let user;
+        try {
+            const { email } = req.body;
+            user = await UserModel.findOne({ email });
+    
+            if (!user) {
+                return res.status(401).json({ msg: "Email doesn't exist" });
+            }
+    
+            const resetToken = user.createPasswordResetToken();
+            console.log("reset token", resetToken);
+            await user.save();
+    
+            const resetURL = `${req.protocol}://${req.get("host")}/auth/resetPassword/${resetToken}`;
+            console.log("resetURL",resetURL);
+            const message = `Forgot your password? Submit a patch request with a new password and password confirm to :${resetURL}  \n if you haven't forgotten your password, ignore this email`;
+    
+            // Try to send the email
+            await sendEmail({
+                email: email,
+                subject: "Your password reset link valid for 10 min",
+                text: message,
+            });
+    
+            res.status(200).json({ msg: "Reset link has been sent to the user's email" });
+        } catch (err) {
+            console.error(err);
+    
+            // Handle errors related to sending email
+            user.passwordResetToken = undefined;
+            user.passwordResetExpires = undefined;
+            await user.save();
+    
+            if (!res.headersSent) {
+                res.status(500).json({ msg: "Error sending email" });
+            }
+        }
+    }),
 };
