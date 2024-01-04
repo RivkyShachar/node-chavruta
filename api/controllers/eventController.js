@@ -58,22 +58,31 @@ exports.eventController = {
     }),
     getMarkedRequests: asyncHandler(async (req, res) => {
         const userId = req.tokenData._id;
-
+      
         const user = await UserModel.findById(userId)
-            .populate("markedYes", "preferredLanguages topics studyDuration startDateAndTime description")
-            .populate("markedNo", "preferredLanguages topics studyDuration startDateAndTime description");
-
+          .populate({
+            path: 'markedYes',
+            match: { state: 'open' }, // Filter by state 'open'
+            select: 'preferredLanguages topics studyDuration startDateAndTime description state', // Include other fields you need
+          })
+          .populate({
+            path: 'markedNo',
+            match: { state: 'open' }, // Filter by state 'open'
+            select: 'preferredLanguages topics studyDuration startDateAndTime description state', // Include other fields you need
+          });
+      
         if (!user) {
-            return res.status(404).json({ msg: "User not found" });
+          return res.status(404).json({ msg: 'User not found' });
         }
-
+      
         const markedRequests = {
-            markedYes: user.markedYes,
-            markedNo: user.markedNo,
+          markedYes: user.markedYes,
+          markedNo: user.markedNo,
         };
-
-        res.status(200).json({ data: markedRequests, msg: "" });
-    }),
+      
+        res.status(200).json({ data: markedRequests, msg: '' });
+      }),
+      
     finalizeRequest: asyncHandler(async (req, res) => {
 
         const requestId = req.params.reqId;
