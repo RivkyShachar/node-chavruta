@@ -38,7 +38,7 @@ exports.studyRequestController = {
         let page = req.query.page || 1;
         let sort = req.query.sort || "_id";
         let reverse = req.query.reverse == "yes" ? -1 : 1;
-
+        console.log("sort",sort);
         // Fetch study requests with pagination and sorting
         let data = await StudyRequestModel
             .find({
@@ -66,13 +66,22 @@ exports.studyRequestController = {
             .limit(perPage)
             .skip((page - 1) * perPage)
             .sort({ [sort]: reverse })
-            .populate('userId', 'firstName lastName profilePic');
+            .populate({
+                path: 'userId',
+                select: 'firstName lastName profilePic',
+            })
+            .populate({
+                path: 'finalChavruta',
+                select: 'firstName lastName profilePic',
+            });
+
         if (!data || data.length === 0) {
             return res.status(404).json({ msg: "No requests found" });
         }
         res.status(200).json({ data, msg: "ok" });
 
     }),
+
     singleRequest: asyncHandler(async (req, res) => {
 
         let idSingle = req.params.idSingle1;
