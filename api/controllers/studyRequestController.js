@@ -104,9 +104,9 @@ exports.studyRequestController = {
         res.status(201).json({ data, msg: "User information retrieved successfully" });
     }),
     getMatchUsers: asyncHandler(async (req, res) => {
-        const StudyRequestModel = require("../models/studyRequestModel");
         const requestId = req.params.idReq;
-        const studyRequest = await StudyRequestModel.findById(requestId);
+        console.log("requestId",requestId);
+        const studyRequest = await StudyRequestModel.findOne({_id:requestId});
     
         if (!studyRequest) {
           return res.status(404).json({ msg: "Study request not found" });
