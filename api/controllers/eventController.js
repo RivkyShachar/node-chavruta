@@ -86,7 +86,7 @@ exports.eventController = {
         }
 
         // Find the study request by reqId
-        const studyRequest = await StudyRequestModel.findById(reqId);
+        const studyRequest = await StudyRequestModel.findById(requestId);
 
         if (!studyRequest) {
             return res.status(404).json({ msg: "Study request not found" });
