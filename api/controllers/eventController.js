@@ -1,6 +1,7 @@
 const { asyncHandler } = require("../helpers/wrap");
 const { StudyRequestModel } = require("../models/studyRequestModel");
 const { UserModel } = require("../models/userModel");
+const {generateZoomLink} = require("../helpers/zoom")
 
 const checkForConflicts = (studyRequest, markedYesRequest) =>{
     return false;
@@ -104,6 +105,12 @@ exports.eventController = {
         // Save the chavruta ID as finalChavruta in the request
         studyRequest.finalChavruta = userId;
         studyRequest.state = "close";
+        studyRequest.zoomLink = generateZoomLink({
+            name: studyRequest.firstName + studyRequest.lastName,
+            start_time: studyRequest.startDateAndTime,
+            duration: studyRequest.duration.max,
+            agenda: studyRequest.description,
+        });
 
         // Update the study request
         await studyRequest.save();

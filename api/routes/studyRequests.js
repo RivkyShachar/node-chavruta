@@ -29,4 +29,8 @@ router.put("/:delId", auth, studyRequestController.editRequest)
 router.delete("/:delId", auth, studyRequestController.deleteRequest)
 router.get("/matchUsers/:idReq",auth, studyRequestController.getMatchUsers);
 
+//not good just for now /getUserRequests/myStudyRequests
+// router.get("/getUserRequests/:userId", auth, studyRequestController.getUserStudyRequests)
+// router.get("/myStudyRequests", auth, studyRequestController.myStudyRequests)
+
 module.exports = router;

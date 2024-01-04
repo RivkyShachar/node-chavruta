@@ -44,7 +44,7 @@ exports.studyRequestController = {
             .find({
                 userId: { $ne: req.tokenData._id }, // Exclude requests from the current user
                 state: 'open', // Include only open requests (modify as needed)
-                gender: userGender// Add additional conditions based on user gender
+                // gender: userGender// Add additional conditions based on user gender
             })
             .limit(perPage)
             .skip((page - 1) * perPage)
@@ -60,9 +60,14 @@ exports.studyRequestController = {
         let page = req.query.page || 1;
         let sort = req.query.sort || "_id";
         let reverse = req.query.reverse == "yes" ? -1 : 1;
-
+        // find all requests that userId=req.tokenData._id + the requests that the state="close" && that the finalChavruta=req.tokenData._id
         let data = await StudyRequestModel
-            .find({ userId: req.tokenData._id })
+            .find({
+                $or: [
+                    { userId: req.tokenData._id },
+                    { $and: [{ state: "close" }, { finalChavruta: req.tokenData._id }] }
+                ]
+            })
             .limit(perPage)
             .skip((page - 1) * perPage)
             .sort({ [sort]: reverse })

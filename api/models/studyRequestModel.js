@@ -62,19 +62,23 @@ studyRequestSchema.pre('deleteOne', { document: false, query: true }, async func
 });
 
 studyRequestSchema.pre('save', async function (next) {
-    const currentDate = new Date();
     const { state, startDateAndTime, studyDuration } = this;
-  
+    console.log(startDateAndTime);
     // Calculate the end date and time by adding studyDuration.max to startDateAndTime
-    const studyEndTime = new Date(startDateAndTime.getTime() + studyDuration.max);
-  
+    // const studyEndTime = new Date(startDateAndTime.getTime() + studyDuration.max);
+    // 1 minute = 60000 milliseconds
+    const studyEndTime = startDateAndTime + studyDuration*60000;
+    console.log(studyEndTime);
     // Check if the state is 'open' and the studyEndTime has passed
-    if (state === 'open' && studyEndTime < currentDate) {
+    if (state === 'open' && studyEndTime < Date.now()) {
+        console.log("model <");
+        console.log(studyEndTime);
+        console.log(currentDate);
       this.state = 'past';
     }
   
     // Check if the state is 'close' and the studyEndTime has passed
-    if (state === 'close' && studyEndTime < currentDate) {
+    if (state === 'close' && studyEndTime < Date.now()) {
       this.state = 'done';
     }
   
