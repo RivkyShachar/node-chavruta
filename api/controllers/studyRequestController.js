@@ -72,7 +72,7 @@ exports.studyRequestController = {
             })
             .populate({
                 path: 'finalChavruta',
-                select: 'firstName lastName profilePic',
+                select: '_id firstName lastName profilePic',
             });
 
         if (!data || data.length === 0) {
