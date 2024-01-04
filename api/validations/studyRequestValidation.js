@@ -8,7 +8,10 @@ exports.validateStudyRequest = (_reqBody) => {
             min: Joi.number().required().min(5).max(40),
             max: Joi.number().max(40).required().min(Joi.ref('min')),
         }).required(),
-        startDateAndTime: Joi.date().required(),
+        startDateAndTime: Joi.date()
+        .min(new Date().toISOString()) // min date is after now
+        .max(new Date().setMonth(new Date().getMonth() + 1).toISOString()) // max date is one month from now
+        .required(),
         description: Joi.string().max(500),
         levelOfStudy: Joi.number().integer().min(0).max(5).default(0),
         ageRange: Joi.number().integer().min(0).max(5).default(0),

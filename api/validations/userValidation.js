@@ -25,7 +25,9 @@ exports.validUser = (_reqBody) => {
         gender: Joi.boolean().required(),
         firstName: Joi.string().min(2).max(99).required(),
         lastName: Joi.string().min(2).max(99).required(),
-        dateOfBirth: Joi.date(),
+        dateOfBirth: Joi.date()
+        .max(new Date().setFullYear(new Date().getFullYear() - 12).toISOString()) // max date is 12 years ago
+        .min(new Date('1900-01-01').toISOString()), // min date is January 1, 1900
         address: Joi.object({
             city: Joi.string().max(99).default(""),
             country: Joi.string().max(99).required(),
@@ -38,7 +40,7 @@ exports.validUser = (_reqBody) => {
         educations: Joi.array().items(Joi.object({
             degree: Joi.string().min(2).max(99).required(),
             name: Joi.string().min(2).max(99).required(),
-            startDate: Joi.date().required(),
+            startDate: Joi.date(),
             endDate: Joi.date()
         })).default([]),
         timezone: Joi.string().max(99).default("Asia/Jerusalem"),
