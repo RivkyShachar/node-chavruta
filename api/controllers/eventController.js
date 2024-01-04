@@ -105,13 +105,15 @@ exports.eventController = {
         // Save the chavruta ID as finalChavruta in the request
         studyRequest.finalChavruta = userId;
         studyRequest.state = "close";
-        studyRequest.zoomLink = generateZoomLink({
+        const zoomLink = await generateZoomLink({
             name: studyRequest.firstName + studyRequest.lastName,
             start_time: studyRequest.startDateAndTime,
-            duration: studyRequest.duration.max,
+            duration: studyRequest.studyDuration.max,
             agenda: studyRequest.description,
         });
-
+        console.log(zoomLink);
+        console.log(typeof(zoomLink));
+        studyRequest.zoomLink = zoomLink
         // Update the study request
         await studyRequest.save();
 

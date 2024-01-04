@@ -21,7 +21,7 @@ exports.generateZoomLink = async(data) => {
       topic: `Chavruta with ${data.name}`,
       type: 2,
       start_time: data.start_time,
-      duration: min(20,data.duration),
+      duration: data.duration,
       timezone: data.timezone || 'Israel',
       password: '123',
       agenda: data.agenda,
