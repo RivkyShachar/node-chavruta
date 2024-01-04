@@ -24,6 +24,7 @@ router.post("/login",authController.login )
 // Payload: New password details and authentication token
 // Response: Status 200 if successful, 500 for internal server error.
 // router.put("/changePassword", auth, authController.changePassword )
+router.patch("/resetPassword/:resetToken", authController.resetPassword);
 
 // Forgot Password (Password Reset Initiation):
 // Request Type: POST
@@ -31,8 +32,9 @@ router.post("/login",authController.login )
 // Payload: User's email for initiating password reset
 // Response: Status 200 if successful, 500 for internal server error.
 // router.put("/forgotPassword", auth, authController.forgotPassword )
-
+router.post("/forgotPassword", authController.forgotPassword);
 module.exports = router;
+
 
 
 

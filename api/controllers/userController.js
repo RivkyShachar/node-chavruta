@@ -7,7 +7,7 @@ const { asyncHandler } = require("../helpers/wrap")
 exports.userController = {
   myInfo: asyncHandler(async (req, res) => {
     // the middlware auth added the tokenData
-    if(!req.tokenData._id){
+    if (!req.tokenData._id) {
       return res.status(401).json({ msg: "token error" });
     }
     let userInfo = await UserModel.findOne({ _id: req.tokenData._id }, { password: 0 });
@@ -35,7 +35,32 @@ exports.userController = {
 
     res.status(200).json({ data, msg: "ok" });
   }),
-  
+  getMatchUsers: asyncHandler(async (req, res) => {
+    const StudyRequestModel = require("../models/studyRequestModel");
+    const requestId = req.params.idReq;
+    const studyRequest = await StudyRequestModel.findById(requestId);
+
+    if (!studyRequest) {
+      return res.status(404).json({ msg: "Study request not found" });
+    }
+    const { matchesList } = studyRequest;
+
+    // Array to store user details
+    const matchUsersDetails = [];
+
+    // Loop through matchesList and fetch user details
+    for (const userId of matchesList) {
+      const user = await UserModel.findById(userId);
+
+      if (user) {
+        const { _id, firstName, lastName, profilePic } = user;
+        matchUsersDetails.push({ _id, firstName, lastName, profilePic });
+      }
+    }
+
+    // Respond with the user details
+    res.status(200).json({ data: matchUsersDetails, msg: "Matches users returned successfully" });
+  }),
   searchName: asyncHandler(async (req, res) => {
     let perPage = Math.min(req.query.perPage, 20) || 10;
     let page = req.query.page || 1;
@@ -101,7 +126,7 @@ exports.userController = {
     // Check if the user is an admin or updating their own profile
     if (req.tokenData.role === "admin" || idEdit === req.tokenData._id) {
       data = await UserModel.updateOne({ _id: idEdit }, req.body);
-       // need to fix the nModified with the real whing that returned from db
+      // need to fix the nModified with the real whing that returned from db
       if (!data || data.nModified === 0) {
         return res.status(400).json({ msg: "No changes made or operation not enabled" });
       }

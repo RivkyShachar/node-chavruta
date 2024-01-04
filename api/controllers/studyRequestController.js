@@ -83,7 +83,8 @@ exports.studyRequestController = {
         } else {
             res.status(200).json({ data, msg: "ok" });
         }
-    }),marked: asyncHandler(async (req, res) => {
+    }),
+    marked: asyncHandler(async (req, res) => {
         // the middlware auth added the tokenData
         if(!req.tokenData._id){
           return res.status(401).json({ msg: "token error" });
