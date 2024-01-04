@@ -76,7 +76,7 @@ exports.studyRequestController = {
     singleRequest: asyncHandler(async (req, res) => {
 
         let idSingle = req.params.idSingle1;
-        let data = await StudyRequestModel.findOne({_id:idSingle});
+        let data = await StudyRequestModel.findOne({ _id: idSingle });
 
         if (data === null) {
             res.status(404).json({ msg: "No item found" });
@@ -86,50 +86,50 @@ exports.studyRequestController = {
     }),
     marked: asyncHandler(async (req, res) => {
         // the middlware auth added the tokenData
-        if(!req.tokenData._id){
-          return res.status(401).json({ msg: "token error" });
+        if (!req.tokenData._id) {
+            return res.status(401).json({ msg: "token error" });
         }
         const userInfo = await UserModel.findOne({ _id: req.tokenData._id });
         if (!userInfo) {
-          return res.status(404).json({ msg: "User not found" });
+            return res.status(404).json({ msg: "User not found" });
         }
-    
+
         // Fetch study requests concurrently
         const [markedYesList, markedNoList] = await Promise.all([
-          Promise.all(userInfo.markedYes.map(id => StudyRequestModel.findById(id))),
-          Promise.all(userInfo.markedNo.map(id => StudyRequestModel.findById(id))),
+            Promise.all(userInfo.markedYes.map(id => StudyRequestModel.findById(id))),
+            Promise.all(userInfo.markedNo.map(id => StudyRequestModel.findById(id))),
         ]);
-    
+
         const data = { markedYes: markedYesList, markedNo: markedNoList };
-    
+
         res.status(201).json({ data, msg: "User information retrieved successfully" });
     }),
     getMatchUsers: asyncHandler(async (req, res) => {
         const requestId = req.params.idReq;
-        console.log("requestId",requestId);
-        const studyRequest = await StudyRequestModel.findOne({_id:requestId});
-    
+        console.log("requestId", requestId);
+        const studyRequest = await StudyRequestModel.findOne({ _id: requestId });
+
         if (!studyRequest) {
-          return res.status(404).json({ msg: "Study request not found" });
+            return res.status(404).json({ msg: "Study request not found" });
         }
         const { matchesList } = studyRequest;
-    
+
         // Array to store user details
         const matchUsersDetails = [];
-    
+
         // Loop through matchesList and fetch user details
         for (const userId of matchesList) {
-          const user = await UserModel.findById(userId);
-    
-          if (user) {
-            const { _id, firstName, lastName, profilePic } = user;
-            matchUsersDetails.push({ _id, firstName, lastName, profilePic });
-          }
+            const user = await UserModel.findById(userId);
+
+            if (user) {
+                const { _id, firstName, lastName, profilePic } = user;
+                matchUsersDetails.push({ _id, firstName, lastName, profilePic });
+            }
         }
-    
+
         // Respond with the user details
         res.status(200).json({ data: matchUsersDetails, msg: "Matches users returned successfully" });
-      }),
+    }),
     search: async (req, res) => {
         let perPage = req.query.perPage || 10;
         let page = req.query.page || 1;
@@ -215,6 +215,23 @@ exports.studyRequestController = {
             res.status(500).json({ msg: "there is an error try again later", err })
         }
     },
+    getUserStudyRequests: asyncHandler(async (req, res) => {
+        const userId = req.params.userId;
+
+        // Find the user by id
+        const user = await UserModel.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+
+        // Fetch study requests using the ids in the user's requestList
+        const data = await StudyRequestModel.find({
+            _id: { $in: user.requestList },
+        });
+
+        res.status(200).json({ data, mag: "ok" });
+    }),
     addRequest: asyncHandler(async (req, res) => {
         let validBody = validateStudyRequest(req.body);
         if (validBody.error) {
