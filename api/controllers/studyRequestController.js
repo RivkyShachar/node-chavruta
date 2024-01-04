@@ -245,6 +245,8 @@ exports.studyRequestController = {
         let validBody = validateStudyRequest(req.body);
         if (validBody.error) {
             const errorMessage = validBody.error.details.map(detail => detail.message).join(', ');
+            console.log(req.body.startDateAndTime);
+            console.log(errorMessage);
             return res.status(400).json({ msg: `error from joi-${errorMessage}` });
         }
         if (!req.tokenData._id) {
