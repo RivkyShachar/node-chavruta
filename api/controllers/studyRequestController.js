@@ -292,10 +292,19 @@ exports.studyRequestController = {
         let data;
         if (req.tokenData.role == "admin") {
             data = await StudyRequestModel.deleteOne({ _id: delId })
+            console.log("data in if",data)
+
         }
         else {
             data = await StudyRequestModel.deleteOne({ _id: delId, userId: req.tokenData._id })
         }
+        console.log("data before ",data);
+
+        if (data.deletedCount === 0) {
+            // Handle case where no document was deleted
+            return res.status(404).json({ msg: "Study request not found or not authorized for deletion" });
+        }
+        console.log("data sfter ",data);
         res.status(204).json({ msg: "Study request deleted successfully", data });
 
     })
