@@ -145,6 +145,18 @@ exports.studyRequestController = {
         // Respond with the user details
         res.status(200).json({ data: matchUsersDetails, msg: "Matches users returned successfully" });
     }),
+    cancleMeeting: asyncHandler(async (req, res) => {
+        const requestId = req.params.idReq;
+        const studyRequest = await StudyRequestModel.findById(requestId);
+        if (!studyRequest) {
+            return res.status(404).json({ msg: "Study request not found" });
+        }
+        studyRequest.finalChavruta = null;
+        studyRequest.state = "open";
+        studyRequest.zoomLink = null;
+        await studyRequest.save();
+        res.status(201).json({ msg: "meeting cancled successfuly" });
+    }),
     search: async (req, res) => {
         let perPage = req.query.perPage || 10;
         let page = req.query.page || 1;

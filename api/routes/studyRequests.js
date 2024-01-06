@@ -25,6 +25,7 @@ router.post("/", auth, studyRequestController.addRequest)
 // router.post("/", studyRequestController.addRequest)
 
 router.put("/:delId", auth, studyRequestController.editRequest)
+router.put("/cancleMeeting/:idReq", auth, studyRequestController.cancleMeeting)
 
 router.delete("/:delId", auth, studyRequestController.deleteRequest)
 router.get("/matchUsers/:idReq",auth, studyRequestController.getMatchUsers);
