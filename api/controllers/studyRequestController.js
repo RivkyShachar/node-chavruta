@@ -44,6 +44,7 @@ exports.studyRequestController = {
             .find({
                 userId: { $ne: req.tokenData._id }, // Exclude requests from the current user
                 state: 'open', // Include only open requests (modify as needed)
+                _id: { $nin: [...currentUser.markedYes, ...currentUser.markedNo] },
                 // gender: userGender// Add additional conditions based on user gender
             })
             .limit(perPage)
