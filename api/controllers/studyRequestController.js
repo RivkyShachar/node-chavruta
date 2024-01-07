@@ -38,6 +38,12 @@ exports.studyRequestController = {
         let page = req.query.page || 1;
         let sort = req.query.sort || "_id";
         let reverse = req.query.reverse == "yes" ? -1 : 1;
+        let minDuration = req.query.minDuration || 5; // get only requests that studyDuration.min >= minDuration
+        let maxDuration = req.query.maxDuration || 40; // get only requests that studyDuration.max <= maxDuration
+        let startDate = req.query.startDate || Date.now();
+        let endDate = req.query.endDate || "9999-12-31T23:59:59.999Z";
+        let searchTopic = req.query.searchTopic || ""; // will do it later
+        let lang = req.query.lang || "All"; // if lang==Hebrew get only if preferredLanguages contain Hebrew and same with English
         console.log("sort",sort);
         // Fetch study requests with pagination and sorting
         let data = await StudyRequestModel
@@ -45,6 +51,9 @@ exports.studyRequestController = {
                 userId: { $ne: req.tokenData._id }, // Exclude requests from the current user
                 state: 'open', // Include only open requests (modify as needed)
                 _id: { $nin: [...currentUser.markedYes, ...currentUser.markedNo] },
+                'studyDuration.min': { $gte: minDuration },
+                'studyDuration.max': { $lte: maxDuration },
+                startDateAndTime: { $gte: new Date(startDate), $lte: new Date(endDate)},
                 // gender: userGender// Add additional conditions based on user gender
             })
             .limit(perPage)
