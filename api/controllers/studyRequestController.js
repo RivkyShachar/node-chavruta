@@ -2,6 +2,13 @@ const { validateStudyRequest } = require("../validations/studyRequestValidation"
 const { StudyRequestModel } = require("../models/studyRequestModel")
 const { UserModel } = require("../models/userModel")
 const { asyncHandler } = require("../helpers/wrap")
+const axios = require('axios');
+
+const normalizeTopic = (topic) => {
+    // Implement your logic to normalize topics
+    // For example, you can remove diacritics, convert to lowercase, etc.
+    return topic.replace(/[\u0591-\u05C7]/g, '').toLowerCase();
+};
 
 exports.studyRequestController = {
     requestsList: asyncHandler(async (req, res) => {
@@ -21,6 +28,8 @@ exports.studyRequestController = {
         if (!data || data.length === 0) {
             return res.status(404).json({ msg: "No requests found" });
         }
+
+
         res.status(200).json({ data, msg: "ok" });
 
     }),
@@ -43,9 +52,41 @@ exports.studyRequestController = {
         let startDate = req.query.startDate || Date.now();
         let endDate = req.query.endDate || "9999-12-31T23:59:59.999Z";
         let searchTopic = req.query.searchTopic || ""; // will do it later
-        let lang = req.query.lang || "All"; // if lang==Hebrew get only if preferredLanguages contain Hebrew and same with English
-        console.log("sort",sort);
-        // Fetch study requests with pagination and sorting
+        let lang = req.query.lang || "All"; // if lang==Hebrew get only if preferredLanguages contain Hebrew and same with English if All ignore this sort of lang
+        let langFilter = {};
+        if (lang === "Hebrew" || lang === "English") {
+            langFilter = {
+                'preferredLanguages': lang
+            };
+        }
+
+
+        // Fetch related topics from the API only if searchTopic is not empty
+        let relatedTopicsList = [searchTopic];
+        if (searchTopic) {
+            try {
+                const relatedTopicsResponse = await fetch(`http://www.sefaria.org/api/v2/index/${searchTopic}?with_content_counts=0&with_related_topics=1`);
+                console.log(relatedTopicsResponse);
+                const relatedTopicsData = await relatedTopicsResponse.json();
+                const { title, heTitle, titleVariants, categories, heCategories, relatedTopics } = relatedTopicsData;
+                console.log(relatedTopicsData);
+                if (!relatedTopicsData.error) {
+                    if (title && heTitle && titleVariants && categories && heCategories && relatedTopics) {
+                        console.log("in &&&&&&&&&&&&");
+                        const relatedTopicsMap = relatedTopics.map((item) => [item.title.he, item.title.en]);
+                        console.log(relatedTopicsMap);
+                        const relatedTopicsMapFlat = relatedTopicsMap.flat();
+                        relatedTopicsList = [searchTopic,title, heTitle, ...titleVariants, ...categories, ...heCategories, ...relatedTopicsMapFlat];
+                        console.log("list");
+                        console.log(relatedTopicsList);
+                    }
+                }
+            }
+            catch (error) {
+                console.log(error);
+            }
+        }
+
         let data = await StudyRequestModel
             .find({
                 userId: { $ne: req.tokenData._id }, // Exclude requests from the current user
@@ -53,7 +94,8 @@ exports.studyRequestController = {
                 _id: { $nin: [...currentUser.markedYes, ...currentUser.markedNo] },
                 'studyDuration.min': { $gte: minDuration },
                 'studyDuration.max': { $lte: maxDuration },
-                startDateAndTime: { $gte: new Date(startDate), $lte: new Date(endDate)},
+                startDateAndTime: { $gte: new Date(startDate), $lte: new Date(endDate) },
+                ...langFilter,
                 // gender: userGender// Add additional conditions based on user gender
             })
             .limit(perPage)
@@ -63,6 +105,36 @@ exports.studyRequestController = {
         if (!data || data.length === 0) {
             return res.status(404).json({ msg: "No requests found" });
         }
+
+        data.forEach((request) => {
+            if (request.topics) {
+                request.topics = request.topics.map(normalizeTopic);
+            }
+        });
+        
+        // Sort data based on normalized topics
+        data.sort((a, b) => {
+            const topicsA = a.topics || [];
+            const topicsB = b.topics || [];
+        
+            for (let i = 0; i < relatedTopicsList.length; i++) {
+                const normalizedTopic = relatedTopicsList[i];
+                const indexA = topicsA.indexOf(normalizedTopic);
+                const indexB = topicsB.indexOf(normalizedTopic);
+        
+                if (indexA !== -1 && indexB !== -1) {
+                    return indexA - indexB;
+                } else if (indexA !== -1) {
+                    return -1;
+                } else if (indexB !== -1) {
+                    return 1;
+                }
+            }
+        
+            return 0;
+        });
+        // now sort the data according to data.topics
+        // the relatedTopicsList is the priority of what to be firts
         res.status(200).json({ data, msg: "ok" });
     }),
     myStudyRequests: asyncHandler(async (req, res) => {
@@ -88,7 +160,7 @@ exports.studyRequestController = {
             .populate({
                 path: 'finalChavruta',
                 select: '_id firstName lastName profilePic',
-            });
+            });
 
         if (!data || data.length === 0) {
             return res.status(404).json({ msg: "No requests found" });
@@ -122,7 +194,7 @@ exports.studyRequestController = {
         const [markedYesList, markedNoList] = await Promise.all([
             Promise.all(userInfo.markedYes.map(id => StudyRequestModel.findOne({ _id: id, state: 'open' }))),
             Promise.all(userInfo.markedNo.map(id => StudyRequestModel.findOne({ _id: id, state: 'open' }))),
-          ]);
+        ]);
 
         const data = { markedYes: markedYesList, markedNo: markedNoList };
 
@@ -330,19 +402,19 @@ exports.studyRequestController = {
         let data;
         if (req.tokenData.role == "admin") {
             data = await StudyRequestModel.deleteOne({ _id: delId })
-            console.log("data in if",data)
+            console.log("data in if", data)
 
         }
         else {
             data = await StudyRequestModel.deleteOne({ _id: delId, userId: req.tokenData._id })
         }
-        console.log("data before ",data);
+        console.log("data before ", data);
 
         if (data.deletedCount === 0) {
             // Handle case where no document was deleted
-            return res.status(404).json({ msg: "Study request not found or not authorized for deletion" });
-        }
-        console.log("data sfter ",data);
+            return res.status(404).json({ msg: "Study request not found or not authorized for deletion" });
+        }
+        console.log("data sfter ", data);
         res.status(204).json({ msg: "Study request deleted successfully", data });
 
     })
