@@ -155,7 +155,7 @@ exports.studyRequestController = {
         studyRequest.state = "open";
         studyRequest.zoomLink = null;
         await studyRequest.save();
-        res.status(201).json({ msg: "meeting cancled successfuly" });
+        res.status(201).json({ msg: "meeting canceled successfuly" });
     }),
     search: async (req, res) => {
         let perPage = req.query.perPage || 10;
