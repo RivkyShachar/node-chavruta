@@ -40,8 +40,7 @@ exports.validUser = (_reqBody) => {
         educations: Joi.array().items(Joi.object({
             degree: Joi.string().min(2).max(99).required(),
             name: Joi.string().min(2).max(99).required(),
-            startDate: Joi.date(),
-            endDate: Joi.date()
+            
         })).default([]),
         timezone: Joi.string().max(99).default("Asia/Jerusalem"),
         status: Joi.boolean().default(false),
