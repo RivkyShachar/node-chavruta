@@ -30,7 +30,7 @@ router.get("/myInfo", auth, userController.myInfo)
 //   - Status 401 if not valid admin token
 //   - Status 404 if no user found
 //   - Status 500 for internal server error.
-router.get("/usersList", authAdmin, userController.userList)
+router.get("/usersList", auth, userController.userList)
 // router.get("/usersList", userController.userList)
 
 // get user by name 
