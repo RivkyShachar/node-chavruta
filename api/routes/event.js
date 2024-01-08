@@ -9,6 +9,7 @@ router.get("/wantToStudyWithMe/:reqId", auth, eventController.wantToStudyWithMe)
 router.post("/finalizeRequest/:userId/:reqId", auth, eventController.finalizeRequest);
 router.post("/markYes/:reqId",auth ,eventController.markYes)
 router.post("/markNo/:reqId",auth ,eventController.markNo)
+router.post("/markNoToUser/:reqId/:userId",auth ,eventController.markNo)
 
 module.exports = router;
 

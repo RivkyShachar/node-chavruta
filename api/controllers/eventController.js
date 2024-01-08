@@ -1,9 +1,9 @@
 const { asyncHandler } = require("../helpers/wrap");
 const { StudyRequestModel } = require("../models/studyRequestModel");
 const { UserModel } = require("../models/userModel");
-const {generateZoomLink} = require("../helpers/zoom")
+const { generateZoomLink } = require("../helpers/zoom")
 
-const checkForConflicts = (studyRequest, markedYesRequest) =>{
+const checkForConflicts = (studyRequest, markedYesRequest) => {
     return false;
 }
 
@@ -57,33 +57,54 @@ exports.eventController = {
     markNo: asyncHandler(async (req, res) => {
         await markRequest(req, res, false);
     }),
+    markNoToUser: asyncHandler(async (req, res) => {
+        const requestId = req.params.reqId;
+        const userId = req.params.userId;
+        const studyRequest = await StudyRequestModel.findById(requestId);
+        const user = await UserModel.findById(userId);
+
+        if (!studyRequest) {
+            return res.status(404).json({ msg: "Study request not found" });
+        }
+        if (!userId) {
+            return res.status(400).json({ msg: "User ID is undefined" });
+        }
+        studyRequest.matchesList.pull(userId);
+        user.markedYes.pull(requestId);
+
+        // Save the updated study request
+        await studyRequest.save();
+        await user.save();
+        res.status(200).json({ msg: `Request removed from list successfully` });
+
+    }),
     getMarkedRequests: asyncHandler(async (req, res) => {
         const userId = req.tokenData._id;
-      
+
         const user = await UserModel.findById(userId)
-          .populate({
-            path: 'markedYes',
-            match: { state: 'open' }, // Filter by state 'open'
-            select: 'preferredLanguages topics studyDuration startDateAndTime description state', // Include other fields you need
-          })
-          .populate({
-            path: 'markedNo',
-            match: { state: 'open' }, // Filter by state 'open'
-            select: 'preferredLanguages topics studyDuration startDateAndTime description state', // Include other fields you need
-          });
-      
+            .populate({
+                path: 'markedYes',
+                match: { state: 'open' }, // Filter by state 'open'
+                select: 'preferredLanguages topics studyDuration startDateAndTime description state', // Include other fields you need
+            })
+            .populate({
+                path: 'markedNo',
+                match: { state: 'open' }, // Filter by state 'open'
+                select: 'preferredLanguages topics studyDuration startDateAndTime description state', // Include other fields you need
+            });
+
         if (!user) {
-          return res.status(404).json({ msg: 'User not found' });
+            return res.status(404).json({ msg: 'User not found' });
         }
-      
+
         const markedRequests = {
-          markedYes: user.markedYes,
-          markedNo: user.markedNo,
+            markedYes: user.markedYes,
+            markedNo: user.markedNo,
         };
-      
+
         res.status(200).json({ data: markedRequests, msg: '' });
-      }),
-      
+    }),
+
     finalizeRequest: asyncHandler(async (req, res) => {
 
         const requestId = req.params.reqId;
@@ -112,7 +133,7 @@ exports.eventController = {
             agenda: studyRequest.description,
         });
         console.log(zoomLink);
-        console.log(typeof(zoomLink));
+        console.log(typeof (zoomLink));
         studyRequest.zoomLink = zoomLink
         // Update the study request
         await studyRequest.save();
