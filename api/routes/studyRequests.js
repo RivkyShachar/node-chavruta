@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get("/requestsList", authAdmin, studyRequestController.requestsList)
 
-router.get("/relevantRequestsList", auth, studyRequestController.relevantRequestsList)
+router.post("/relevantRequestsList", auth, studyRequestController.relevantRequestsList)
 
 // get all the requests that the user has posted - by token
 router.get("/myStudyRequests", auth, studyRequestController.myStudyRequests)

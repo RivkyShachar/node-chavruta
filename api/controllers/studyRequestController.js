@@ -10,6 +10,72 @@ const normalizeTopic = (topic) => {
     return topic.replace(/[\u0591-\u05C7]/g, '').toLowerCase();
 };
 
+const fetchRelatedTopics = async (searchTopics) => {
+    let relatedTopicsList = [];
+    
+    if (searchTopics && searchTopics.length > 0) {
+        try {
+            const relatedTopicsPromises = searchTopics.map(async (searchTopic) => {
+                const response = await fetch(`http://www.sefaria.org/api/v2/index/${searchTopic}?with_content_counts=0&with_related_topics=1`);
+                const data = await response.json();
+                
+                if (!data.error) {
+                    const { title, heTitle, titleVariants, categories, heCategories, relatedTopics } = data;
+                    
+                    if (title && heTitle && titleVariants && categories && heCategories && relatedTopics) {
+                        const relatedTopicsMap = relatedTopics.map((item) => [item.title.he, item.title.en]);
+                        const relatedTopicsMapFlat = relatedTopicsMap.flat();
+                        
+                        return [searchTopic, title, heTitle, ...titleVariants, ...categories, ...heCategories, ...relatedTopicsMapFlat];
+                    }
+                }
+                
+                return [searchTopic];
+            });
+
+            const relatedTopicsResults = await Promise.all(relatedTopicsPromises);
+            console.log("relatedTopicsResults");
+            console.log(relatedTopicsResults);
+            relatedTopicsList = relatedTopicsList.concat(...relatedTopicsResults.filter((topics) => topics.length > 0));
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    
+    return relatedTopicsList;
+};
+
+const normalizeAndSortData = (data, relatedTopicsList) => {
+    data.forEach((request) => {
+        if (request.topics) {
+            request.topics = request.topics.map(normalizeTopic);
+        }
+    });
+
+    data.sort((a, b) => {
+        const topicsA = a.topics || [];
+        const topicsB = b.topics || [];
+
+        for (let i = 0; i < relatedTopicsList.length; i++) {
+            const normalizedTopic = relatedTopicsList[i];
+            const indexA = topicsA.indexOf(normalizedTopic);
+            const indexB = topicsB.indexOf(normalizedTopic);
+
+            if (indexA !== -1 && indexB !== -1) {
+                return indexA - indexB;
+            } else if (indexA !== -1) {
+                return -1;
+            } else if (indexB !== -1) {
+                return 1;
+            }
+        }
+
+        return 0;
+    });
+
+    return data;
+};
+
 exports.studyRequestController = {
     requestsList: asyncHandler(async (req, res) => {
         let perPage = Math.min(req.query.perPage, 200) || 100;
@@ -51,7 +117,7 @@ exports.studyRequestController = {
         let maxDuration = req.query.maxDuration || 40; // get only requests that studyDuration.max <= maxDuration
         let startDate = req.query.startDate || Date.now();
         let endDate = req.query.endDate || "9999-12-31T23:59:59.999Z";
-        let searchTopic = req.query.searchTopic || ""; // will do it later
+        let searchTopics = req.body.searchTopics || []; // will do it later
         let lang = req.query.lang || "All"; // if lang==Hebrew get only if preferredLanguages contain Hebrew and same with English if All ignore this sort of lang
         let langFilter = {};
         if (lang === "Hebrew" || lang === "English") {
@@ -59,33 +125,11 @@ exports.studyRequestController = {
                 'preferredLanguages': lang
             };
         }
-
-
-        // Fetch related topics from the API only if searchTopic is not empty
-        let relatedTopicsList = [searchTopic];
-        if (searchTopic) {
-            try {
-                const relatedTopicsResponse = await fetch(`http://www.sefaria.org/api/v2/index/${searchTopic}?with_content_counts=0&with_related_topics=1`);
-                console.log(relatedTopicsResponse);
-                const relatedTopicsData = await relatedTopicsResponse.json();
-                const { title, heTitle, titleVariants, categories, heCategories, relatedTopics } = relatedTopicsData;
-                console.log(relatedTopicsData);
-                if (!relatedTopicsData.error) {
-                    if (title && heTitle && titleVariants && categories && heCategories && relatedTopics) {
-                        console.log("in &&&&&&&&&&&&");
-                        const relatedTopicsMap = relatedTopics.map((item) => [item.title.he, item.title.en]);
-                        console.log(relatedTopicsMap);
-                        const relatedTopicsMapFlat = relatedTopicsMap.flat();
-                        relatedTopicsList = [searchTopic,title, heTitle, ...titleVariants, ...categories, ...heCategories, ...relatedTopicsMapFlat];
-                        console.log("list");
-                        console.log(relatedTopicsList);
-                    }
-                }
-            }
-            catch (error) {
-                console.log(error);
-            }
-        }
+        console.log("searchTopics");
+        console.log(searchTopics);
+        console.log(req.body);
+         // Fetch related topics
+         const relatedTopicsList = await fetchRelatedTopics(searchTopics);
 
         let data = await StudyRequestModel
             .find({
@@ -105,37 +149,13 @@ exports.studyRequestController = {
         if (!data || data.length === 0) {
             return res.status(404).json({ msg: "No requests found" });
         }
+        console.log("relatedTopicsList");
+        console.log(relatedTopicsList);
 
-        data.forEach((request) => {
-            if (request.topics) {
-                request.topics = request.topics.map(normalizeTopic);
-            }
-        });
-        
-        // Sort data based on normalized topics
-        data.sort((a, b) => {
-            const topicsA = a.topics || [];
-            const topicsB = b.topics || [];
-        
-            for (let i = 0; i < relatedTopicsList.length; i++) {
-                const normalizedTopic = relatedTopicsList[i];
-                const indexA = topicsA.indexOf(normalizedTopic);
-                const indexB = topicsB.indexOf(normalizedTopic);
-        
-                if (indexA !== -1 && indexB !== -1) {
-                    return indexA - indexB;
-                } else if (indexA !== -1) {
-                    return -1;
-                } else if (indexB !== -1) {
-                    return 1;
-                }
-            }
-        
-            return 0;
-        });
-        // now sort the data according to data.topics
-        // the relatedTopicsList is the priority of what to be firts
-        res.status(200).json({ data, msg: "ok" });
+        // Normalize and sort data based on related topics
+        const sortedData = normalizeAndSortData(data, relatedTopicsList);
+
+        res.status(200).json({ data: sortedData, msg: "ok" });
     }),
     myStudyRequests: asyncHandler(async (req, res) => {
         let perPage = Math.min(req.query.perPage, 200) || 100;
