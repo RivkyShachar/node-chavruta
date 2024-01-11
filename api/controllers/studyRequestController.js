@@ -12,24 +12,24 @@ const normalizeTopic = (topic) => {
 
 const fetchRelatedTopics = async (searchTopics) => {
     let relatedTopicsList = [];
-    
+
     if (searchTopics && searchTopics.length > 0) {
         try {
             const relatedTopicsPromises = searchTopics.map(async (searchTopic) => {
                 const response = await fetch(`http://www.sefaria.org/api/v2/index/${searchTopic}?with_content_counts=0&with_related_topics=1`);
                 const data = await response.json();
-                
+
                 if (!data.error) {
                     const { title, heTitle, titleVariants, categories, heCategories, relatedTopics } = data;
-                    
+
                     if (title && heTitle && titleVariants && categories && heCategories && relatedTopics) {
                         const relatedTopicsMap = relatedTopics.map((item) => [item.title.he, item.title.en]);
                         const relatedTopicsMapFlat = relatedTopicsMap.flat();
-                        
+
                         return [searchTopic, title, heTitle, ...titleVariants, ...categories, ...heCategories, ...relatedTopicsMapFlat];
                     }
                 }
-                
+
                 return [searchTopic];
             });
 
@@ -41,7 +41,7 @@ const fetchRelatedTopics = async (searchTopics) => {
             console.error(error);
         }
     }
-    
+
     return relatedTopicsList;
 };
 
@@ -128,8 +128,8 @@ exports.studyRequestController = {
         console.log("searchTopics");
         console.log(searchTopics);
         console.log(req.body);
-         // Fetch related topics
-         const relatedTopicsList = await fetchRelatedTopics(searchTopics);
+        // Fetch related topics
+        const relatedTopicsList = await fetchRelatedTopics(searchTopics);
 
         let data = await StudyRequestModel
             .find({
@@ -216,7 +216,11 @@ exports.studyRequestController = {
             Promise.all(userInfo.markedNo.map(id => StudyRequestModel.findOne({ _id: id, state: 'open' }))),
         ]);
 
-        const data = { markedYes: markedYesList, markedNo: markedNoList };
+        // Remove null values from the lists
+        const filteredMarkedYesList = markedYesList.filter(request => request !== null);
+        const filteredMarkedNoList = markedNoList.filter(request => request !== null);
+
+        const data = { markedYes: filteredMarkedYesList, markedNo: filteredMarkedNoList };
 
         res.status(201).json({ data, msg: "User information retrieved successfully" });
     }),
