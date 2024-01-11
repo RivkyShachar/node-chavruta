@@ -210,6 +210,26 @@ exports.studyRequestController = {
             return res.status(404).json({ msg: "User not found" });
         }
 
+        // Function to filter out study requests with state "past" or "done"
+        const filterPastAndDone = async (list) => {
+            const filteredList = [];
+
+            for (const requestId of list) {
+                const studyRequest = await StudyRequestModel.findOne({ _id: requestId, state: { $nin: ['past', 'done'] } });
+
+                if (studyRequest) {
+                    filteredList.push(requestId);
+                }
+            }
+
+            return filteredList;
+        };
+
+        // Filter out "past" and "done" requests from markedYes and markedNo lists
+        userInfo.markedYes = await filterPastAndDone(userInfo.markedYes);
+        userInfo.markedNo = await filterPastAndDone(userInfo.markedNo);
+        await userInfo.save();
+
         // Fetch study requests concurrently
         const [markedYesList, markedNoList] = await Promise.all([
             Promise.all(userInfo.markedYes.map(id => StudyRequestModel.findOne({ _id: id, state: 'open' }))),
