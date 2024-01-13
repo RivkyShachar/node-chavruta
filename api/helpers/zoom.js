@@ -15,10 +15,11 @@ exports.generateZoomLink = async(data) => {
     });
 
     const accessToken = zoomTokenResponse.data.access_token;
+    console.log("accessTokenZoom",accessToken);
 
     // Step 2: Create Zoom Meeting
     const createMeetingResponse = await axios.post('https://api.zoom.us/v2/users/me/meetings', {
-      topic: `Chavruta with ${data.name}`,
+      topic: `Chavruta`,
       type: 2,
       start_time: data.start_time,
       duration: data.duration,
