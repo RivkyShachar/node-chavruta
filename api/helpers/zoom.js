@@ -2,8 +2,7 @@ const axios = require('axios');
 
 exports.generateZoomLink = async(data) => {
   try {
-    // Step 1: Generate Zoom Token
-    const zoomTokenResponse = await axios.post('https://zoom.us/oauth/token', null, {
+    const dataToGenerateToken = {
       params: {
         grant_type: process.env.zoom_grant_type,
         account_id: process.env.zoom_account_id,
@@ -11,8 +10,12 @@ exports.generateZoomLink = async(data) => {
       auth: {
         username: process.env.zoom_username,
         password: process.env.zoom_password,
-      },
-    });
+      }
+    }
+    console.log("dataToGenerateToken");
+    console.log(dataToGenerateToken);
+    // Step 1: Generate Zoom Token
+    const zoomTokenResponse = await axios.post('https://zoom.us/oauth/token', null,dataToGenerateToken );
     console.log("now will generate access token");
 
     const accessToken = zoomTokenResponse.data.access_token;
