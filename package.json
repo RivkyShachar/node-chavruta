@@ -22,6 +22,7 @@
     "libphonenumber-js": "^1.10.53",
     "lodash": "^4.17.21",
     "mongoose": "^6.12.4",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.9.8",
     "nodemailer-sendgrid-transport": "^0.2.0",
     "npm": "^10.2.5",
