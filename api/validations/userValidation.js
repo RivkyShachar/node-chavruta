@@ -33,7 +33,7 @@ exports.validUser = (_reqBody) => {
             country: Joi.string().max(99).required(),
         }),
         location: Joi.string().max(100).default(""),
-        profilePic: Joi.string().max(1000).default(DEFAULT_IMG),
+        profilePic: Joi.string().max(1000),
         email: Joi.string().min(2).max(99).email().required(),
         password: Joi.string().regex(passwordRegex).required(),
         language: Joi.string().max(32).default("English"),

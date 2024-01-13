@@ -18,7 +18,7 @@ let userSchema = new mongoose.Schema({
     profilePic: {
         type: String,
         default: function () {
-            return this.gender ? "female.png" : "male.png";
+            return this.gender ? "https://cdn5.vectorstock.com/i/1000x1000/73/24/user-icon-male-person-symbol-profile-avatar-vector-20787324.jpg":"https://cdn4.vectorstock.com/i/1000x1000/18/98/user-icon-female-person-symbol-profile-avatar-sign-vector-18991898.jpg";
         },
     },
     email: { type: String, unique: true },
