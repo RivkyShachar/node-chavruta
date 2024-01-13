@@ -42,7 +42,7 @@ exports.generateZoomLink = async(data) => {
       },
     });
 
-    const zoomMeetingLink = createMeetingResponse.data.join_url;
+    const zoomMeetingLink = createMeetingResponse.data.start_url;
 
     console.log('Zoom Meeting Link:', zoomMeetingLink);
     return zoomMeetingLink;
