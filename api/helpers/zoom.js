@@ -13,6 +13,7 @@ exports.generateZoomLink = async(data) => {
         password: process.env.zoom_password,
       },
     });
+    console.log("now will generate access token");
 
     const accessToken = zoomTokenResponse.data.access_token;
     console.log("accessTokenZoom",accessToken);
